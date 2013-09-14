@@ -3,9 +3,12 @@ deferred= require 'deferred'
 module.exports= (Entry, log) ->
     Entry.Tag= class EntryTag
 
+
+
         constructor: (data) ->
             @id= data.id? or null
             @name= data.name? or null
+
 
 
         @query: (entryId, query, db, callback) ->
@@ -26,7 +29,7 @@ module.exports= (Entry, log) ->
 
 
 
-        @put: (entryId, data, db, callback) ->
+        @post: (entryId, data, db, callback) ->
             tag= null
 
             dfd= do deferred

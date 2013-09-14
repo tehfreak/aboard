@@ -25,6 +25,24 @@ module.exports= (log) ->
 
 
 
+        @post: (data, db, callback) ->
+            tag= null
+
+            dfd= do deferred
+
+            setTimeout =>
+
+                dfd.resolve tag= new @ data
+                if callback instanceof Function
+                    process.nextTick ->
+                        callback null, tag
+
+            ,   1023
+
+            dfd.promise
+
+
+
         @get: (id, db, callback) ->
             tag= null
 

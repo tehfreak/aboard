@@ -162,7 +162,7 @@
 Отдает теги записи по ее идентификатору.
 
             app.post '/entries/:entry/tags'
-            ,   AboardApiV1.createEntryTag('entry')
+            ,   AboardApiV1.postEntryTag('entry')
             ,   (req, res, next) ->
                     req.entry.tag (tag) ->
                             log 'created entry tag resolved', tag
@@ -183,6 +183,20 @@
                             res.json tags
                     ,   (err) ->
                             log 'tags rejected', err
+                            next err
+
+
+## POST /tags
+Добавляет тег.
+
+            app.post '/tags'
+            ,   AboardApiV1.postTag('entry')
+            ,   (req, res, next) ->
+                    req.tag (tag) ->
+                            log 'created entry tag resolved', tag
+                            res.json tag
+                    ,   (err) ->
+                            log 'created entry tag rejected', err
                             next err
 
 

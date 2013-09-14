@@ -47,14 +47,14 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
 
                 do next
 
-        @createEntryTag: (param) ->
+        @postEntryTag: (param) ->
             (req, res, next) ->
                 entryId= req.param param
 
                 log 'createEntryTag', entryId, req.body
 
                 req.entry= req.entry or {}
-                req.entry.tag= EntryTag.create entryId, req.body, null
+                req.entry.tag= EntryTag.post entryId, req.body, null
                 req.entry.tag (tag) ->
                         res.entry= res.entry or {}
                         res.entry.tag= tag
@@ -78,6 +78,21 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
                         res.errors.push res.error= err
 
                 do next
+
+        @postTag: () ->
+            (req, res, next) ->
+
+                log 'postTag', query
+
+                req.tag= Tag.post req.body, null
+                req.tag (tag) ->
+                        res.tag= res.tag or {}
+                        res.tag= tag
+                ,   (err) ->
+                        res.errors.push res.error= err
+
+                do next
+
 
         @getTag: (param) ->
             (req, res, next) ->
