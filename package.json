@@ -1,13 +1,25 @@
 {
   "name": "aboard", "version": "0.0.1",
   "repository": "https://github.com/tehfreak/aboard",
-  "config": {},
+  "config": {
+    "db": {
+      "maria": {
+        "host": "localhost", "port": 3306,
+        "user": "aboard", "password": ""
+      },
+      "redis": {
+        "host": "localhost", "port": 6379
+      }
+    }
+  },
   "scripts": {
     "start": "coffee node.coffee.md"
   },
   "dependencies": {
     "di": "0.0.1",
     "deferred": "~0.6.5",
-    "express": "~3.4.0"
+    "express": "~3.4.0",
+    "mysql": "~2.0.0-alpha9",
+    "redis": "~0.8.4"
   }
 }
