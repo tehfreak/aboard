@@ -115,7 +115,6 @@
 
 
 ## GET /entries
-
 Отдает список записей.
 
             app.get '/entries'
@@ -130,7 +129,6 @@
 
 
 ## GET /entries/:entry
-
 Отдает запись по идентификатору.
 
             app.get '/entries/:entry'
@@ -146,8 +144,35 @@
                             next err
 
 
-## GET /tags
+## GET /entries/:entry/tags
+Отдает теги записи по ее идентификатору.
 
+            app.get '/entries/:entry/tags'
+            ,   AboardApiV1.queryEntryTag('entry')
+            ,   (req, res, next) ->
+                    req.entry.tags (tags) ->
+                            log 'entry tags resolved', tags
+                            res.json tags
+                    ,   (err) ->
+                            log 'entry tags rejected', err
+                            next err
+
+
+## POST /entries/:entry/tags
+Отдает теги записи по ее идентификатору.
+
+            app.post '/entries/:entry/tags'
+            ,   AboardApiV1.createEntryTag('entry')
+            ,   (req, res, next) ->
+                    req.entry.tag (tag) ->
+                            log 'created entry tag resolved', tag
+                            res.json tag
+                    ,   (err) ->
+                            log 'created entry tag rejected', err
+                            next err
+
+
+## GET /tags
 Отдает список тегов.
 
             app.get '/tags'
@@ -162,7 +187,6 @@
 
 
 ## GET /tags/:tag
-
 Отдает тег по идентификатору.
 
             app.get '/tags/:tag'
@@ -179,7 +203,6 @@
 
 
 ## GET /threads
-
 Отдает список тредов.
 
             app.get '/threads'
@@ -194,7 +217,6 @@
 
 
 ## GET /threads/:thread
-
 Отдает тред по идентификатору.
 
             app.get '/threads/:thread'

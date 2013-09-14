@@ -1,4 +1,4 @@
-module.exports= (App, Entry, Tag, Thread, log) ->
+module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
     class AboardApiV1 extends App
 
 
@@ -26,6 +26,38 @@ module.exports= (App, Entry, Tag, Thread, log) ->
                 req.entry= Entry.get entryId, null
                 req.entry (entry) ->
                         res.entry= entry
+                ,   (err) ->
+                        res.errors.push res.error= err
+
+                do next
+
+        @queryEntryTag: (param) ->
+            (req, res, next) ->
+                entryId= req.param param
+
+                log 'queryEntryTag', entryId, req.query
+
+                req.entry= req.entry or {}
+                req.entry.tags= EntryTag.query entryId, req.query, null
+                req.entry.tags (tags) ->
+                        res.entry= res.entry or {}
+                        res.entry.tags= tags
+                ,   (err) ->
+                        res.errors.push res.error= err
+
+                do next
+
+        @createEntryTag: (param) ->
+            (req, res, next) ->
+                entryId= req.param param
+
+                log 'createEntryTag', entryId, req.body
+
+                req.entry= req.entry or {}
+                req.entry.tag= EntryTag.create entryId, req.body, null
+                req.entry.tag (tag) ->
+                        res.entry= res.entry or {}
+                        res.entry.tag= tag
                 ,   (err) ->
                         res.errors.push res.error= err
 
