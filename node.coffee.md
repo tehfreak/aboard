@@ -52,6 +52,8 @@
 
     injector.invoke (app, log) ->
 
+        module.exports= app
+
         app.listen port= 1337, () ->
             log 'listening on port - %d', port
 
@@ -67,12 +69,8 @@
 
 Статические файлы:
 
-        app.use '/', App.static "./views"
-
-Домашняя страница приложения:
-
-        app.get '/', (req, res) ->
-            res.end 'Welcome aboard, Username :3'
+        app.use '/', App.static "./views/public/assets"
+        app.use '/', App.static "./views/public/templates/Aboard"
 
 
 
