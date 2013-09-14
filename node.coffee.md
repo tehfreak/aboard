@@ -18,11 +18,15 @@
 
 	di= require 'di'
 
+
+
 ### Подключает модули инъектора
 
 	App= require './modules/App'
 	Config= require './modules/Config'
 	Db= require './modules/Db'
+
+	Aboard= require './modules/Aboard'
 
 
 
@@ -32,6 +36,8 @@
 	    new App()
 	    new Config(manifest.config)
 	    new Db()
+
+	    new Aboard()
 	]
 
 
@@ -89,6 +95,67 @@
 						do req.maria.release
 
 				next err
+
+
+
+### Объявляет обработчики маршрутов API
+
+    injector.invoke (app, log) ->
+
+Создает и монтирует субприложение:
+
+        app.use '/api/v1', injector.invoke (AboardApiV1) ->
+            app= new AboardApiV1
+
+
+#### Объявляет обработчики субприложения
+
+
+##### GET /threads
+
+Отдает список тредов.
+
+< content-type: application/json
+< Aboard.Thread {
+<   id: Number
+<   posts: [
+<     post: Aboard.Thread.Post
+<   ]
+< }
+
+            app.get '/threads'
+            ,   AboardApiV1.queryThread('threadId')
+            ,   (req, res, next) ->
+                    req.threads (threads) ->
+                            log 'threads resolved', threads
+                            res.json threads
+                    ,   (err) ->
+                            log 'threads rejected', err
+                            next err
+
+
+##### GET /threads/:thread
+
+Отдает тред по идентификатору.
+
+< content-type: application/json
+< Aboard.Thread {
+<   id: Number
+<   posts: [
+<     post: Aboard.Thread.Post
+<   ]
+< }
+
+            app.get '/threads/:thread'
+            ,   AboardApiV1.getThread('thread')
+            ,   (req, res, next) ->
+                    req.thread (thread) ->
+                            log 'thread resolved', thread
+                            res.status 404 if not thread
+                            res.json thread
+                    ,   (err) ->
+                            log 'thread rejected', err
+                            next err
 
 
 ### Объявляет обработчики ошибок
