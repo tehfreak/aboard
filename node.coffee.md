@@ -4,17 +4,29 @@
 
 
 
+## Подключение зависимостей
+
+
+
+### Подключает конфиг
+
+	manifest= require './package.json'
+
 ### Подключает инъектор зависимостей
 
 	di= require 'di'
 
 ### Подключает модули инъектора
 
-	AppModule= require './modules/App'
+	App= require './modules/App'
+	Config= require './modules/Config'
 
 ### Инстанцирует инъектор
 
-	injector= new di.Injector [new AppModule]
+	injector= new di.Injector [
+	    new App()
+	    new Config(manifest.config)
+	]
 
 
 
