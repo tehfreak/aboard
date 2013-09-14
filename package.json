@@ -1,0 +1,12 @@
+{
+  "name": "aboard", "version": "0.0.1",
+  "repository": "https://github.com/tehfreak/aboard",
+  "scripts": {
+    "start": "coffee node.coffee.md"
+  },
+  "dependencies": {
+    "di": "0.0.1",
+    "deferred": "~0.6.5",
+    "express": "~3.4.0"
+  }
+}
