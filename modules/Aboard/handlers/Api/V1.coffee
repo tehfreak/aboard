@@ -1,5 +1,35 @@
-module.exports= (App, log, Tag, Thread) ->
+module.exports= (App, Entry, Tag, Thread, log) ->
     class AboardApiV1 extends App
+
+
+
+        @queryEntry: () ->
+            (req, res, next) ->
+                query= req.query
+
+                log 'queryEntry', query
+
+                req.entries= Entry.query query, null
+                req.entries (entries) ->
+                        res.entries= entries
+                ,   (err) ->
+                        res.errors.push res.error= err
+
+                do next
+
+        @getEntry: (param) ->
+            (req, res, next) ->
+                entryId= req.param param
+
+                log 'getEntry', entryId
+
+                req.entry= Entry.get entryId, null
+                req.entry (entry) ->
+                        res.entry= entry
+                ,   (err) ->
+                        res.errors.push res.error= err
+
+                do next
 
 
 

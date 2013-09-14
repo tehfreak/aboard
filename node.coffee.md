@@ -114,6 +114,38 @@
 #### Объявляет обработчики субприложения
 
 
+## GET /entries
+
+Отдает список записей.
+
+            app.get '/entries'
+            ,   AboardApiV1.queryEntry()
+            ,   (req, res, next) ->
+                    req.entries (entries) ->
+                            log 'entries resolved', entries
+                            res.json entries
+                    ,   (err) ->
+                            log 'entries rejected', err
+                            next err
+
+
+## GET /entries/:entry
+
+Отдает запись по идентификатору.
+
+            app.get '/entries/:entry'
+            ,   AboardApiV1.getEntry('entry')
+            ,   (req, res, next) ->
+                    req.entry (entry) ->
+                            log 'entry resolved', entry
+                            if not entry
+                                res.status 404
+                            res.json entry
+                    ,   (err) ->
+                            log 'entry rejected', err
+                            next err
+
+
 ## GET /tags
 
 Отдает список тегов.
