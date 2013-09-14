@@ -114,7 +114,39 @@
 #### Объявляет обработчики субприложения
 
 
-##### GET /threads
+## GET /tags
+
+Отдает список тегов.
+
+            app.get '/tags'
+            ,   AboardApiV1.queryTag('tagId')
+            ,   (req, res, next) ->
+                    req.tags (tags) ->
+                            log 'tags resolved', tags
+                            res.json tags
+                    ,   (err) ->
+                            log 'tags rejected', err
+                            next err
+
+
+## GET /tags/:tag
+
+Отдает тег по идентификатору.
+
+            app.get '/tags/:tag'
+            ,   AboardApiV1.getTag('tag')
+            ,   (req, res, next) ->
+                    req.tag (tag) ->
+                            log 'tag resolved', tag
+                            if not tag
+                                res.status 404
+                            res.json tag
+                    ,   (err) ->
+                            log 'tag rejected', err
+                            next err
+
+
+## GET /threads
 
 Отдает список тредов.
 
@@ -129,7 +161,7 @@
                             next err
 
 
-##### GET /threads/:thread
+## GET /threads/:thread
 
 Отдает тред по идентификатору.
 

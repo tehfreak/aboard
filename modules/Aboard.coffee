@@ -7,4 +7,5 @@ module.exports= class AboardModule extends Module
 
         @factory 'AboardApiV1', require './Aboard/handlers/Api/V1'
 
+        @factory 'Tag', require './Aboard/models/Tag'
         @factory 'Thread', require './Aboard/models/Thread'
