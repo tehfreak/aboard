@@ -118,14 +118,6 @@
 
 Отдает список тредов.
 
-< content-type: application/json
-< Aboard.Thread {
-<   id: Number
-<   posts: [
-<     post: Aboard.Thread.Post
-<   ]
-< }
-
             app.get '/threads'
             ,   AboardApiV1.queryThread('threadId')
             ,   (req, res, next) ->
@@ -140,14 +132,6 @@
 ##### GET /threads/:thread
 
 Отдает тред по идентификатору.
-
-< content-type: application/json
-< Aboard.Thread {
-<   id: Number
-<   posts: [
-<     post: Aboard.Thread.Post
-<   ]
-< }
 
             app.get '/threads/:thread'
             ,   AboardApiV1.getThread('thread')
