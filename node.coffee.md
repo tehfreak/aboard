@@ -258,31 +258,84 @@
  
 ##### Обработчик маршрутов Awesome API
 
-    injector.invoke (app, access, log) ->
+    injector.invoke (app, access, auth, log) ->
 
 Создает и монтирует субприложение:
 
-        app.use '/api/v1'
-        ,   injector.invoke (AwesomeApiV1) ->
-                app= new AwesomeApiV1
+        app.use '/api/v1', injector.invoke (AwesomeApiV1, session) ->
+            app= new AwesomeApiV1
+
+            app.use AwesomeApiV1.cookieParser()
+
+            app.use AwesomeApiV1.bodyParser()
+
+            app.use session.init
+                secret: 'awesome'
+
+            app.use auth.init()
+            app.use auth.sess()
+
 
 Объявляет обработчики субприложения:
 
-                app.get '/users'
-                ,   access('admin.users')
-                ,   AwesomeApiV1.queryUser()
-                ,   (req, res, next) ->
-                        res.json []
-                        #req.users (users) ->
-                        #        log 'users resolved', users
-                        #        res.json users
-                        #,   (err) ->
-                        #        log 'users rejected', err
-                        #        next err
+ 
+## [GET /api/v1/user]()
+Отдает аутентифицированного пользователя.
+
+            app.get '/user'
+            ,   access('user')
+            ,   AwesomeApiV1.loadUser()
+            ,   (req, res, next) ->
+                    req.user (user) ->
+                            log 'user resolved', user
+                            res.json user
+                    ,   (err) ->
+                            log 'user rejected', err
+                            next err
+
+ 
+## [POST /api/v1/user/auth]()
+Aутентифицирует пользователя.
+
+            app.post '/user/auth'
+            ,   auth.authenticate('local')
+            ,   (req, res, next) ->
+                    res.json req.account
+
+ 
+## [POST /api/v1/users]()
+Отдает список пользователей.
+
+            app.get '/users'
+            ,   access('admin.users')
+            ,   AwesomeApiV1.queryUser()
+            ,   (req, res, next) ->
+                    req.users (users) ->
+                            log 'users resolved', users
+                            res.json users
+                    ,   (err) ->
+                            log 'users rejected', err
+                            next err
+
+## [POST /api/v1/users/:userId]()
+Отдает пользователя по идентификатору.
+
+            app.get '/users/:userId'
+            ,   access('admin.users')
+            ,   AwesomeApiV1.loadUser('userId')
+            ,   (req, res, next) ->
+                    req.user (user) ->
+                            log 'user resolved', user
+                            if not user
+                                res.status 404
+                            res.json user
+                    ,   (err) ->
+                            log 'user rejected', err
+                            next err
 
 Возвращает субприложение для монтирования к родителю:
 
-                app
+            app
 
  
 ##### Обработчик ошибок
