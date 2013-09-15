@@ -18,7 +18,17 @@ module.exports= (grunt) ->
                 }, {
                     expand: true
                     cwd: '<%= pkg.build.views.src.assets.cwd %>/bower_components/angular'
-                    src: ['**/*', '!**/*.json']
+                    src: ['**/*', '!**/*.json', '!**/*.md']
+                    dest: '<%= pkg.build.views.app.assets.cwd %>/scripts/libs/angular'
+                }, {
+                    expand: true
+                    cwd: '<%= pkg.build.views.src.assets.cwd %>/bower_components/angular-resource'
+                    src: ['**/*', '!**/*.json', '!**/*.md']
+                    dest: '<%= pkg.build.views.app.assets.cwd %>/scripts/libs/angular'
+                }, {
+                    expand: true
+                    cwd: '<%= pkg.build.views.src.assets.cwd %>/bower_components/angular-route'
+                    src: ['**/*', '!**/*.json', '!**/*.md']
                     dest: '<%= pkg.build.views.app.assets.cwd %>/scripts/libs/angular'
                 }, {
                     expand: true
