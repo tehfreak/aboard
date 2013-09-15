@@ -25,6 +25,11 @@ module.exports= (grunt) ->
                     cwd: '<%= pkg.build.viewsAboard.src.assets.cwd %>'
                     src: ['**/*', '!**/bower_components/**','!**/bower.json', '!**/*.less', '!**/*.jade', '!**/*.coffee', '!**/*.md']
                     dest: '<%= pkg.build.viewsAboard.app.assets.cwd %>'
+                }, {
+                    expand: true
+                    cwd: '<%= pkg.build.viewsAwesome.src.assets.cwd %>'
+                    src: ['**/*', '!**/bower_components/**','!**/bower.json', '!**/*.less', '!**/*.jade', '!**/*.coffee', '!**/*.md']
+                    dest: '<%= pkg.build.viewsAwesome.app.assets.cwd %>'
                 }]
 
         jade:
@@ -48,6 +53,17 @@ module.exports= (grunt) ->
                     cwd: '<%= pkg.build.viewsAboard.src.templates.cwd %>'
                     src: ['**/*.jade', '!**/layout.jade']
                     dest: '<%= pkg.build.viewsAboard.app.templates.cwd %>'
+                    ext: '.html'
+                }]
+            viewsAwesome:
+                options:
+                    data:
+                        debug: false
+                files: [{
+                    expand: true
+                    cwd: '<%= pkg.build.viewsAwesome.src.templates.cwd %>'
+                    src: ['**/*.jade', '!**/layout.jade']
+                    dest: '<%= pkg.build.viewsAwesome.app.templates.cwd %>'
                     ext: '.html'
                 }]
 

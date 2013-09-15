@@ -1,0 +1,15 @@
+!!! 5
+html(lang='ru', ng-app='awesome')
+
+    head: block head
+
+        block head-meta
+            meta(charset='utf-8')
+
+        block head-title
+        title {{head.title}}
+
+
+        script(src='/scripts/libs/angular/angular.min.js')
+
+    body: block body

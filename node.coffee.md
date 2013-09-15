@@ -26,6 +26,7 @@
     Db= require './modules/Db'
 
     Aboard= require './modules/Aboard'
+    Awesome= require './modules/Awesome'
 
  
 ##### Инстанцирует инъектор
@@ -36,6 +37,7 @@
         new Db()
 
         new Aboard()
+        new Awesome()
     ]
  
 
@@ -74,7 +76,13 @@
 
         app.use '/', App.static "./modules/Aboard/views/assets"
         app.use '/', App.static "./modules/Aboard/views/templates"
- 
+
+        app.enable 'strict routing'
+
+        app.get '/awesome', (req, res) -> res.redirect '/awesome/'
+        app.use '/awesome/', App.static "./modules/Awesome/views/assets"
+        app.use '/awesome/', App.static "./modules/Awesome/views/templates"
+
 ##### Обработчик подключения к базе данных
 
     injector.invoke (app, db, log) ->
@@ -99,7 +107,7 @@
                 next err
 
  
-##### Обработчик маршрутов API
+##### Обработчик маршрутов Aboard API
 
     injector.invoke (app, log) ->
 
@@ -174,7 +182,7 @@
 Отдает список тегов.
 
             app.get '/tags'
-            ,   AboardApiV1.queryTag('tagId')
+            ,   AboardApiV1.queryTag()
             ,   (req, res, next) ->
                     req.tags (tags) ->
                             log 'tags resolved', tags
@@ -218,7 +226,7 @@
 Отдает список тредов.
 
             app.get '/threads'
-            ,   AboardApiV1.queryThread('threadId')
+            ,   AboardApiV1.queryThread()
             ,   (req, res, next) ->
                     req.threads (threads) ->
                             log 'threads resolved', threads
@@ -243,7 +251,38 @@
                             log 'thread rejected', err
                             next err
 
+Возвращает субприложение для монтирования к родителю:
+
             app
+
+ 
+##### Обработчик маршрутов Awesome API
+
+    injector.invoke (app, access, log) ->
+
+Создает и монтирует субприложение:
+
+        app.use '/api/v1'
+        ,   injector.invoke (AwesomeApiV1) ->
+                app= new AwesomeApiV1
+
+Объявляет обработчики субприложения:
+
+                app.get '/users'
+                ,   access('admin.users')
+                ,   AwesomeApiV1.queryUser()
+                ,   (req, res, next) ->
+                        res.json []
+                        #req.users (users) ->
+                        #        log 'users resolved', users
+                        #        res.json users
+                        #,   (err) ->
+                        #        log 'users rejected', err
+                        #        next err
+
+Возвращает субприложение для монтирования к родителю:
+
+                app
 
  
 ##### Обработчик ошибок

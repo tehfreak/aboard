@@ -64,6 +64,24 @@
           "cwd"    : "modules/Aboard/views.src/templates"
         }
       }
+    },
+    "viewsAwesome": {
+      "app": {
+        "assets": {
+          "cwd"    : "modules/Awesome/views/assets"
+        },
+        "templates": {
+          "cwd"    : "modules/Awesome/views/templates"
+        }
+      },
+      "src": {
+        "assets": {
+          "cwd"    : "modules/Awesome/views.src/assets"
+        },
+        "templates": {
+          "cwd"    : "modules/Awesome/views.src/templates"
+        }
+      }
     }
   },
 
