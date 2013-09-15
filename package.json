@@ -1,6 +1,7 @@
 {
   "name": "aboard", "version": "0.0.1",
   "repository": "https://github.com/tehfreak/aboard",
+
   "config": {
     "db": {
       "maria": {
@@ -10,24 +11,14 @@
       "redis": {
         "host": "localhost", "port": 6379
       }
-    },
-    "build": {
-      "dist": {
-        "views": "",
-        "views_assets": "views/public/assets",
-        "views_templates": "views/public/templates"
-      },
-      "src": {
-        "views": "",
-        "views_assets": "views/src/assets",
-        "views_templates": "views/src/templates"
-      }
     }
   },
+
   "scripts": {
     "prestart": "grunt",
     "start": "coffee node.coffee.md"
   },
+
   "dependencies": {
     "coffee-script": "~1.6.3",
     "di": "0.0.1",
@@ -36,6 +27,46 @@
     "mysql": "~2.0.0-alpha9",
     "redis": "~0.8.4"
   },
+
+  "build": {
+    "views": {
+      "app": {
+        "assets": {
+          "cwd"    : "views/assets"
+        },
+        "templates": {
+          "cwd"    : "views/templates"
+        }
+      },
+      "src": {
+        "assets": {
+          "cwd"    : "views.src/assets"
+        },
+        "templates": {
+          "cwd"    : "views.src/templates"
+        }
+      }
+    },
+    "viewsAboard": {
+      "app": {
+        "assets": {
+          "cwd"    : "modules/Aboard/views/assets"
+        },
+        "templates": {
+          "cwd"    : "modules/Aboard/views/templates"
+        }
+      },
+      "src": {
+        "assets": {
+          "cwd"    : "modules/Aboard/views.src/assets"
+        },
+        "templates": {
+          "cwd"    : "modules/Aboard/views.src/templates"
+        }
+      }
+    }
+  },
+
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",

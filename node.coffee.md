@@ -53,19 +53,27 @@
             log 'listening on port - %d', port
 
  
-##### Обработчики запросов
+### Регистрация обработчиков запросов
 
     injector.invoke (app, App) ->
 
-Лог запросов к приложению:
+ 
+##### Лог запросов к приложению
 
         app.use App.logger 'dev'
 
-Статические файлы:
+ 
+##### Ресурсы вида
 
-        app.use '/', App.static "./views/public/assets"
-        app.use '/', App.static "./views/public/templates/Aboard"
+Общие ресурсы
 
+        app.use '/', App.static "./views/assets"
+        app.use '/', App.static "./views/templates"
+
+Ресурсы модулей
+
+        app.use '/', App.static "./modules/Aboard/views/assets"
+        app.use '/', App.static "./modules/Aboard/views/templates"
  
 ##### Обработчик подключения к базе данных
 

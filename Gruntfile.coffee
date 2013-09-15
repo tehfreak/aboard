@@ -3,32 +3,51 @@ module.exports= (grunt) ->
         pkg: grunt.file.readJSON 'package.json'
 
         clean:
-            all: ['<%= pkg.config.build.dist.views_templates %>/']
+            views: [
+                '<%= pkg.build.views.app.assets %>/'
+                '<%= pkg.build.viewsAboard.app.assets %>/'
+            ]
 
         copy:
             views:
                 files: [{
                     expand: true
-                    cwd: '<%= pkg.config.build.src.views_assets %>'
+                    cwd: '<%= pkg.build.views.src.assets.cwd %>'
                     src: ['**/*', '!**/bower_components/**','!**/bower.json', '!**/*.less', '!**/*.jade', '!**/*.coffee', '!**/*.md']
-                    dest: '<%= pkg.config.build.dist.views_assets %>'
+                    dest: '<%= pkg.build.views.app.assets.cwd %>'
                 }, {
                     expand: true
-                    cwd: '<%= pkg.config.build.src.views_assets %>/bower_components/angular'
+                    cwd: '<%= pkg.build.views.src.assets.cwd %>/bower_components/angular'
                     src: ['**/*', '!**/*.json']
-                    dest: '<%= pkg.config.build.dist.views_assets %>/scripts/libs/angular'
+                    dest: '<%= pkg.build.views.app.assets.cwd %>/scripts/libs/angular'
+                }, {
+                    expand: true
+                    cwd: '<%= pkg.build.viewsAboard.src.assets.cwd %>'
+                    src: ['**/*', '!**/bower_components/**','!**/bower.json', '!**/*.less', '!**/*.jade', '!**/*.coffee', '!**/*.md']
+                    dest: '<%= pkg.build.viewsAboard.app.assets.cwd %>'
                 }]
 
         jade:
-            compile:
+            views:
                 options:
                     data:
                         debug: false
                 files: [{
                     expand: true
-                    cwd: '<%= pkg.config.build.src.views_templates %>'
+                    cwd: '<%= pkg.build.views.src.templates.cwd %>'
                     src: ['**/*.jade', '!**/layout.jade']
-                    dest: '<%= pkg.config.build.dist.views_templates %>'
+                    dest: '<%= pkg.build.views.app.templates.cwd %>'
+                    ext: '.html'
+                }]
+            viewsAboard:
+                options:
+                    data:
+                        debug: false
+                files: [{
+                    expand: true
+                    cwd: '<%= pkg.build.viewsAboard.src.templates.cwd %>'
+                    src: ['**/*.jade', '!**/layout.jade']
+                    dest: '<%= pkg.build.viewsAboard.app.templates.cwd %>'
                     ext: '.html'
                 }]
 
@@ -43,4 +62,4 @@ module.exports= (grunt) ->
 
     grunt.loadNpmTasks 'grunt-contrib-watch'
 
-    grunt.registerTask 'default', ['clean', 'copy', 'jade']
+    grunt.registerTask 'default', ['clean', 'copy:views', 'jade']
