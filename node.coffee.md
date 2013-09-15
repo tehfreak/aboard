@@ -1,26 +1,25 @@
-# Приложение
+# aboard node
+ 
 
+ 
+### Подключение зависимостей
 
-
-
-
-## Подключение зависимостей
-
-
-
-### Подключает конфиг
+ 
+##### Подключает конфиг
 
     manifest= require './package.json'
 
-
-
-### Подключает инъектор зависимостей
+ 
+##### Подключает инъектор
 
     di= require 'di'
 
 
+ 
+### Подключение модулей
 
-### Подключает модули инъектора
+ 
+##### Подключает модули инъектора
 
     App= require './modules/App'
     Config= require './modules/Config'
@@ -28,9 +27,8 @@
 
     Aboard= require './modules/Aboard'
 
-
-
-### Инстанцирует инъектор
+ 
+##### Инстанцирует инъектор
 
     injector= new di.Injector [
         new App()
@@ -39,16 +37,13 @@
 
         new Aboard()
     ]
+ 
 
+ 
+### Конфигурация приложения
 
-
-
-
-## Конфигурация приложения
-
-
-
-### Запускает сервер приложения на указанном порту
+ 
+##### Сервер приложения
 
     injector.invoke (app, log) ->
 
@@ -57,13 +52,12 @@
         app.listen port= 1337, () ->
             log 'listening on port - %d', port
 
-
-
-### Объявляет обработчики маршрутов приложения
+ 
+##### Обработчики запросов
 
     injector.invoke (app, App) ->
 
-Журнал запросов:
+Лог запросов к приложению:
 
         app.use App.logger 'dev'
 
@@ -72,9 +66,8 @@
         app.use '/', App.static "./views/public/assets"
         app.use '/', App.static "./views/public/templates/Aboard"
 
-
-
-### Объявляет подключение к базе данных
+ 
+##### Обработчик подключения к базе данных
 
     injector.invoke (app, db, log) ->
 
@@ -97,9 +90,8 @@
 
                 next err
 
-
-
-### Объявляет обработчики маршрутов API
+ 
+##### Обработчик маршрутов API
 
     injector.invoke (app, log) ->
 
@@ -109,10 +101,10 @@
             app= new AboardApiV1
 
 
-#### Объявляет обработчики субприложения
+Объявляет обработчики субприложения:
 
-
-## GET /entries
+ 
+## [GET /entries]()
 Отдает список записей.
 
             app.get '/entries'
@@ -125,8 +117,8 @@
                             log 'entries rejected', err
                             next err
 
-
-## GET /entries/:entry
+ 
+## [GET /entries/:entry]()
 Отдает запись по идентификатору.
 
             app.get '/entries/:entry'
@@ -141,8 +133,8 @@
                             log 'entry rejected', err
                             next err
 
-
-## GET /entries/:entry/tags
+ 
+## [GET /entries/:entry/tags]()
 Отдает теги записи по ее идентификатору.
 
             app.get '/entries/:entry/tags'
@@ -155,8 +147,8 @@
                             log 'entry tags rejected', err
                             next err
 
-
-## POST /entries/:entry/tags
+ 
+## [POST /entries/:entry/tags]()
 Отдает теги записи по ее идентификатору.
 
             app.post '/entries/:entry/tags'
@@ -169,8 +161,8 @@
                             log 'created entry tag rejected', err
                             next err
 
-
-## GET /tags
+ 
+## [GET /tags]()
 Отдает список тегов.
 
             app.get '/tags'
@@ -183,8 +175,8 @@
                             log 'tags rejected', err
                             next err
 
-
-## POST /tags
+ 
+## [POST /tags]()
 Добавляет тег.
 
             app.post '/tags'
@@ -197,8 +189,8 @@
                             log 'created entry tag rejected', err
                             next err
 
-
-## GET /tags/:tag
+ 
+## [GET /tags/:tag]()
 Отдает тег по идентификатору.
 
             app.get '/tags/:tag'
@@ -213,8 +205,8 @@
                             log 'tag rejected', err
                             next err
 
-
-## GET /threads
+ 
+## [GET /threads]()
 Отдает список тредов.
 
             app.get '/threads'
@@ -227,8 +219,8 @@
                             log 'threads rejected', err
                             next err
 
-
-## GET /threads/:thread
+ 
+## [GET /threads/:thread]()
 Отдает тред по идентификатору.
 
             app.get '/threads/:thread'
@@ -245,8 +237,8 @@
 
             app
 
-
-### Объявляет обработчики ошибок
+ 
+##### Обработчик ошибок
 
     injector.invoke (app, log, Error) ->
 
