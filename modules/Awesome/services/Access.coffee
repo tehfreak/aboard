@@ -5,7 +5,10 @@ module.exports= (log) -> class AccessService
         access= (args...) ->
             (req, res, next) ->
                 log 'access', args...
-                next null
+                if req.isAuthenticated()
+                    next null
+                else
+                    next 401
 
         @constructor.prototype.__proto__= access.__proto__
         access.__proto__= AccessService.prototype

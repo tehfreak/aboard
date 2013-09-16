@@ -5,77 +5,75 @@ accounts=
 
 module.exports= (log) -> class Account
 
-        constructor: () ->
+    constructor: () ->
 
 
 
-        @serialize: (account, db, done) ->
-            log 'serialize account', account
-            done null, account
+    @serialize: (account, db, done) ->
+        log 'serialize account', account
+        done null, account
 
-        @deserialize: (account, db, done) ->
-            log 'deserialize account', account
-            done null, account
-
-
-
-        @auth: (identity, credential, db, done) ->
-            account= null
-
-            dfd= do deferred
-
-            setTimeout =>
-
-                log 'identity', identity
-
-                account= accounts[identity]
-
-                if account
-                    err= null
-                    dfd.resolve account
-                else
-                    err= Error 'bad credentials'
-                    dfd.reject err
-
-                if done instanceof Function
-                    process.nextTick ->
-                        done err, account
-
-            ,   127
-
-            dfd.promise
-
-
-        @query: (query, db, done) ->
-            accounts= []
-
-            dfd= do deferred
-
-            setTimeout =>
-
-                dfd.resolve accounts
-                if done instanceof Function
-                    process.nextTick ->
-                        done null, accounts
-
-            ,   1023
-
-            dfd.promise
+    @deserialize: (account, db, done) ->
+        log 'deserialize account', account
+        done null, account
 
 
 
-        @get: (id, db, done) ->
-            account= null
+    @auth: (identity, credential, db, done) ->
+        account= null
 
-            dfd= do deferred
+        dfd= do deferred
 
-            setTimeout =>
+        setTimeout =>
 
+            account= accounts[identity]
+
+            if account
+                err= null
                 dfd.resolve account
-                if done instanceof Function
-                    process.nextTick ->
-                        done null, account
+            else
+                err= Error 'bad credentials'
+                dfd.reject err
 
-            ,   127
+            if done instanceof Function
+                process.nextTick ->
+                    done err, account
 
-            dfd.promise
+        ,   127
+
+        dfd.promise
+
+
+    @query: (query, db, done) ->
+        accounts= []
+
+        dfd= do deferred
+
+        setTimeout =>
+
+            dfd.resolve accounts
+            if done instanceof Function
+                process.nextTick ->
+                    done null, accounts
+
+        ,   1023
+
+        dfd.promise
+
+
+
+    @get: (id, db, done) ->
+        account= null
+
+        dfd= do deferred
+
+        setTimeout =>
+
+            dfd.resolve account
+            if done instanceof Function
+                process.nextTick ->
+                    done null, account
+
+        ,   127
+
+        dfd.promise

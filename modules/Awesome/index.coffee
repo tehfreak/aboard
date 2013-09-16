@@ -14,6 +14,11 @@ module.exports= class Awesome extends Module
         @factory 'Account', require './models/Account'
 
 
+        # Модель учетной записи гитхаба
+
+        @factory 'AccountGithub', require './models/Account/Github'
+
+
         # Модель пользователя
 
         @factory 'User', require './models/User'

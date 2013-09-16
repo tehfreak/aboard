@@ -250,6 +250,7 @@
                     ,   (err) ->
                             log 'thread rejected', err
                             next err
+ 
 
 Возвращает субприложение для монтирования к родителю:
 
@@ -262,7 +263,7 @@
 
 Создает и монтирует субприложение:
 
-        app.use '/api/v1', injector.invoke (AwesomeApiV1, session) ->
+        app.use '/', injector.invoke (AwesomeApiV1, session) ->
             app= new AwesomeApiV1
 
             app.use AwesomeApiV1.cookieParser()
@@ -282,7 +283,7 @@
 ## [GET /api/v1/user]()
 Отдает аутентифицированного пользователя.
 
-            app.get '/user'
+            app.get '/api/v1/user'
             ,   access('user')
             ,   AwesomeApiV1.loadUser()
             ,   (req, res, next) ->
@@ -297,16 +298,40 @@
 ## [POST /api/v1/user/auth]()
 Aутентифицирует пользователя.
 
-            app.post '/user/auth'
+            app.post '/api/v1/user/auth'
             ,   auth.authenticate('local')
             ,   (req, res, next) ->
                     res.json req.account
 
  
+## [GET /login/github]()
+Aутентифицирует пользователя Гитхаба.
+
+            app.get '/login/github'
+            ,   auth.authenticate('github')
+            ,   (req, res, next) ->
+                    log 'auth from github'
+
+            app.get '/login/github/callback'
+            ,   auth.authenticate('github', {failureRedirect: '/login'})
+            ,   (req, res) ->
+                    log 'вошел с гитхаба', req.account
+                    res.send 'Привет!'
+
+ 
+## [POST /logout]()
+Деаутентифицирует пользователя.
+
+            app.post '/logout'
+            ,   (req, res, next) ->
+                    req.logout()
+                    res.redirect '/'
+
+ 
 ## [POST /api/v1/users]()
 Отдает список пользователей.
 
-            app.get '/users'
+            app.get '/api/v1/users'
             ,   access('admin.users')
             ,   AwesomeApiV1.queryUser()
             ,   (req, res, next) ->
@@ -317,10 +342,11 @@ Aутентифицирует пользователя.
                             log 'users rejected', err
                             next err
 
+ 
 ## [POST /api/v1/users/:userId]()
 Отдает пользователя по идентификатору.
 
-            app.get '/users/:userId'
+            app.get '/api/v1/users/:userId'
             ,   access('admin.users')
             ,   AwesomeApiV1.loadUser('userId')
             ,   (req, res, next) ->
@@ -332,6 +358,7 @@ Aутентифицирует пользователя.
                     ,   (err) ->
                             log 'user rejected', err
                             next err
+ 
 
 Возвращает субприложение для монтирования к родителю:
 
@@ -342,10 +369,10 @@ Aутентифицирует пользователя.
 
     injector.invoke (app, log, Error) ->
 
-        app.use (err, req, res, next) ->
-            log 'error', err
-            res.status err.status or 500
-            res.end 'Error.'
+        #app.use (err, req, res, next) ->
+        #    log 'error', err
+        #    res.status err.status or 500
+        #    res.end 'Error.'
 
 В режиме разработчика объявляет маршрут для симуляции ошибок:
 
