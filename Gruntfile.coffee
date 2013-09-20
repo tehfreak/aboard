@@ -77,15 +77,42 @@ module.exports= (grunt) ->
                     ext: '.html'
                 }]
 
+        less:
+            compile:
+                files: [{
+                    expand: true
+                    cwd: '<%= pkg.build.views.src.assets.cwd %>/styles'
+                    src: ['**/*.less']
+                    dest: '<%= pkg.build.views.app.assets.cwd %>/styles'
+                    ext: '.css'
+                }, {
+                    expand: true
+                    cwd: '<%= pkg.build.viewsAboard.src.assets.cwd %>/styles'
+                    src: ['**/*.less']
+                    dest: '<%= pkg.build.viewsAboard.app.assets.cwd %>/styles'
+                    ext: '.css'
+                }, {
+                    expand: true
+                    cwd: '<%= pkg.build.viewsAwesome.src.assets.cwd %>/styles'
+                    src: ['**/*.less']
+                    dest: '<%= pkg.build.viewsAwesome.app.assets.cwd %>/styles'
+                    ext: '.css'
+                }]
+
         watch:
             jade:
                 files: ['**/*.jade']
                 tasks: ['jade']
+            less:
+                files: ['**/*.less']
+                tasks: ['less']
 
     grunt.loadNpmTasks 'grunt-contrib-clean'
     grunt.loadNpmTasks 'grunt-contrib-copy'
     grunt.loadNpmTasks 'grunt-contrib-jade'
+    grunt.loadNpmTasks 'grunt-contrib-less'
 
     grunt.loadNpmTasks 'grunt-contrib-watch'
 
     grunt.registerTask 'default', ['clean', 'copy:views', 'jade']
+    grunt.registerTask 'dev', ['default', 'watch']
