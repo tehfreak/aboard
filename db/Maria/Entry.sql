@@ -3,6 +3,7 @@ delimiter $$
 CREATE TABLE `entry` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'entryId',
   `name` varchar(45) NOT NULL,
+  `content` longtext,
   `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT NULL,
   `deletedAt` timestamp NULL DEFAULT NULL,

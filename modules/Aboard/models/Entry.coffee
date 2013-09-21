@@ -10,6 +10,7 @@ module.exports= (EntryTag, log) -> class Entry
     constructor: (data) ->
         @id= data.id
         @name= data.name
+        @content= data.content
         @createdAt= data.createdAt
         @updatedAt= data.updatedAt
 
