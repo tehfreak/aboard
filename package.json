@@ -6,7 +6,9 @@
     "db": {
       "maria": {
         "host": "localhost", "port": 3306,
-        "user": "aboard", "password": ""
+        "user": "aboard", "password": "passw0rd",
+        "database": "aboard",
+        "debug": true
       },
       "redis": {
         "host": "localhost", "port": 6379

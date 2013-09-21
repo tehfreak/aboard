@@ -100,7 +100,7 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
 
                 log 'getTag', tagId
 
-                req.tag= Tag.get tagId, null
+                req.tag= Tag.getByName tagId, req.maria
                 req.tag (tag) ->
                         res.tag= tag
                 ,   (err) ->
@@ -108,7 +108,14 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
 
                 do next
 
-
+        @getTagEntries: () -> (req, res, next) ->
+                req.tag (tag) ->
+                        req.tag.entries= Entry.queryByTag tag, req.maria
+                        req.tag.entries (entries) ->
+                                tag.entries= entries
+                        ,   (err) ->
+                                res.errors.push res.error= err
+                do next
 
         @queryThread: () ->
             (req, res, next) ->

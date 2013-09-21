@@ -211,15 +211,18 @@
 
             app.get '/tags/:tag'
             ,   AboardApiV1.getTag('tag')
+            ,   AboardApiV1.getTagEntries()
             ,   (req, res, next) ->
                     req.tag (tag) ->
-                            log 'tag resolved', tag
+                            log 'tag resolved', res.tag
                             if not tag
-                                res.status 404
-                            res.json tag
+                                return res.json 404, tag
+                            req.tag.entries (entries) ->
+                                    log 'tag entries resolved', res.tag.entries
+                                    return res.json tag
                     ,   (err) ->
                             log 'tag rejected', err
-                            next err
+                            return next err
 
  
 ## [GET /threads]()

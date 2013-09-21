@@ -1,7 +1,8 @@
 deferred= require 'deferred'
 
-module.exports= (Entry, log) ->
-    Entry.Tag= class EntryTag
+module.exports= (log) ->
+    class EntryTag
+        @table: 'entry_tag'
 
 
 

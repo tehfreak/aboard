@@ -1,9 +1,21 @@
 deferred= require 'deferred'
 
-module.exports= (log) ->
+module.exports= (Entry, log) ->
     class Tag
+        @table: 'tag'
 
-        constructor: () ->
+        @Entry= Entry
+
+
+
+        constructor: (data) ->
+            @id= data.id
+            @name= data.name
+            @createdAt= data.createdAt
+            @updatedAt= data.updatedAt
+            if data.deletedAt
+                @deletedAt= data.deletedAt
+                @deleted= true
 
 
 
@@ -43,18 +55,50 @@ module.exports= (log) ->
 
 
 
-        @get: (id, db, callback) ->
+        @getByName: (name, db, done) ->
             tag= null
-
             dfd= do deferred
 
-            setTimeout =>
+            err= null
+            if not name
+                dfd.reject err= Error 'name of tag is not be null'
 
-                dfd.resolve tag
-                if callback instanceof Function
-                    process.nextTick ->
-                        callback null, tag
+            if done and err
+                return process.nextTick ->
+                    done err, tag
 
-            ,   127
+            db.query "
+                SELECT
+                    Tag.id,
+                    Tag.name,
+                    Tag.createdAt,
+                    Tag.updatedAt,
+                    Tag.deletedAt
+                  FROM
+                    ?? as Tag
+                  LEFT OUTER JOIN
+                    ?? as EntryTag
+                    ON EntryTag.tagId= Tag.id
+                  LEFT OUTER JOIN
+                    ?? as Entry
+                    ON Entry.id= EntryTag.entryId
+                 WHERE
+                    Tag.name= ?
+                 GROUP BY
+                    Tag.id
+                "
+            ,   [@table, @Entry.Tag.table, @Entry.table, name]
+            ,   (err, rows) =>
+
+                    if not err
+                        if rows.length
+                            tag= new @ rows.shift()
+                        dfd.resolve tag
+                    else
+                        dfd.reject err
+
+                    if done instanceof Function
+                        process.nextTick ->
+                            done err, tag
 
             dfd.promise
