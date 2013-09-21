@@ -1,42 +1,43 @@
 deferred= require 'deferred'
 
-module.exports= (log) ->
-    class Thread
-
-        constructor: () ->
+module.exports= (log) -> class Thread
 
 
 
-        @query: (query, db, callback) ->
-            threads= []
-
-            dfd= do deferred
-
-            setTimeout =>
-
-                dfd.resolve threads
-                if callback instanceof Function
-                    process.nextTick ->
-                        callback null, threads
-
-            ,   1023
-
-            dfd.promise
+    constructor: () ->
 
 
 
-        @get: (id, db, callback) ->
-            thread= null
+    @query: (query, db, callback) ->
+        threads= []
 
-            dfd= do deferred
+        dfd= do deferred
 
-            setTimeout =>
+        setTimeout =>
 
-                dfd.resolve thread
-                if callback instanceof Function
-                    process.nextTick ->
-                        callback null, thread
+            dfd.resolve threads
+            if callback instanceof Function
+                process.nextTick ->
+                    callback null, threads
 
-            ,   127
+        ,   1023
 
-            dfd.promise
+        dfd.promise
+
+
+
+    @get: (id, db, callback) ->
+        thread= null
+
+        dfd= do deferred
+
+        setTimeout =>
+
+            dfd.resolve thread
+            if callback instanceof Function
+                process.nextTick ->
+                    callback null, thread
+
+        ,   127
+
+        dfd.promise

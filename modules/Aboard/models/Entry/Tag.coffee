@@ -1,47 +1,46 @@
 deferred= require 'deferred'
 
-module.exports= (log) ->
-    class EntryTag
-        @table: 'entry_tag'
+module.exports= (log) -> class EntryTag
+    @table: 'entry_tag'
 
 
 
-        constructor: (data) ->
-            @id= data.id? or null
-            @name= data.name? or null
+    constructor: (data) ->
+        @id= data.id? or null
+        @name= data.name? or null
 
 
 
-        @query: (entryId, query, db, callback) ->
-            tags= []
+    @query: (entryId, query, db, callback) ->
+        tags= []
 
-            dfd= do deferred
+        dfd= do deferred
 
-            setTimeout =>
+        setTimeout =>
 
-                dfd.resolve tags
-                if callback instanceof Function
-                    process.nextTick ->
-                        callback null, tags
+            dfd.resolve tags
+            if callback instanceof Function
+                process.nextTick ->
+                    callback null, tags
 
-            ,   1023
+        ,   1023
 
-            dfd.promise
+        dfd.promise
 
 
 
-        @post: (entryId, data, db, callback) ->
-            tag= null
+    @post: (entryId, data, db, callback) ->
+        tag= null
 
-            dfd= do deferred
+        dfd= do deferred
 
-            setTimeout =>
+        setTimeout =>
 
-                dfd.resolve tag= new @ data
-                if callback instanceof Function
-                    process.nextTick ->
-                        callback null, tag
+            dfd.resolve tag= new @ data
+            if callback instanceof Function
+                process.nextTick ->
+                    callback null, tag
 
-            ,   1023
+        ,   1023
 
-            dfd.promise
+        dfd.promise

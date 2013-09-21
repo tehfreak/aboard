@@ -1,102 +1,101 @@
 deferred= require 'deferred'
 
-module.exports= (EntryTag, log) ->
-    class Entry
-        @table: 'entry'
+module.exports= (EntryTag, log) -> class Entry
+    @table: 'entry'
 
-        @Tag= EntryTag
-
-
-
-        constructor: (data) ->
-            @id= data.id
-            @name= data.name
-            @createdAt= data.createdAt
-            @updatedAt= data.updatedAt
-
-            if data.deletedAt
-                @deletedAt= data.deletedAt
-                @deleted= true
+    @Tag= EntryTag
 
 
 
-        @query: (query, db, callback) ->
-            entries= []
+    constructor: (data) ->
+        @id= data.id
+        @name= data.name
+        @createdAt= data.createdAt
+        @updatedAt= data.updatedAt
 
-            dfd= do deferred
+        if data.deletedAt
+            @deletedAt= data.deletedAt
+            @deleted= true
 
-            setTimeout =>
 
-                dfd.resolve entries
-                if callback instanceof Function
+
+    @query: (query, db, callback) ->
+        entries= []
+
+        dfd= do deferred
+
+        setTimeout =>
+
+            dfd.resolve entries
+            if callback instanceof Function
+                process.nextTick ->
+                    callback null, entries
+
+        ,   1023
+
+        dfd.promise
+
+
+
+    @queryByTag: (tag, db, done) ->
+        entries= null
+
+        tagId= tag.id
+
+        dfd= do deferred
+
+        err= null
+        if not tag
+            dfd.reject err= Error 'tag is not be null'
+
+        if done and err
+            return process.nextTick ->
+                done err, entries
+
+        db.query "
+            SELECT
+                Entry.*
+              FROM
+                ?? as EntryTag
+              JOIN
+                ?? as Entry
+                ON Entry.id= EntryTag.entryId
+             WHERE
+                EntryTag.tagId= ?
+             ORDER BY
+                Entry.updatedAt DESC
+            "
+        ,   [@Tag.table, @table, tag.id]
+        ,   (err, rows) =>
+
+                if not err
+                    entries= []
+                    for row in rows
+                        entries.push new @ row
+                    dfd.resolve entries
+                else
+                    dfd.reject err
+
+                if done instanceof Function
                     process.nextTick ->
-                        callback null, entries
+                        done err, entries
 
-            ,   1023
-
-            dfd.promise
+        dfd.promise
 
 
 
-        @queryByTag: (tag, db, done) ->
-            entries= null
+    @get: (id, db, callback) ->
+        entry= null
 
-            tagId= tag.id
+        dfd= do deferred
 
-            dfd= do deferred
+        setTimeout =>
 
-            err= null
-            if not tag
-                dfd.reject err= Error 'tag is not be null'
+            dfd.resolve entry
+            if callback instanceof Function
+                process.nextTick ->
+                    callback null, entry
 
-            if done and err
-                return process.nextTick ->
-                    done err, entries
+        ,   127
 
-            db.query "
-                SELECT
-                    Entry.*
-                  FROM
-                    ?? as EntryTag
-                  JOIN
-                    ?? as Entry
-                    ON Entry.id= EntryTag.entryId
-                 WHERE
-                    EntryTag.tagId= ?
-                 ORDER BY
-                    Entry.updatedAt DESC
-                "
-            ,   [@Tag.table, @table, tag.id]
-            ,   (err, rows) =>
-
-                    if not err
-                        entries= []
-                        for row in rows
-                            entries.push new @ row
-                        dfd.resolve entries
-                    else
-                        dfd.reject err
-
-                    if done instanceof Function
-                        process.nextTick ->
-                            done err, entries
-
-            dfd.promise
-
-
-
-        @get: (id, db, callback) ->
-            entry= null
-
-            dfd= do deferred
-
-            setTimeout =>
-
-                dfd.resolve entry
-                if callback instanceof Function
-                    process.nextTick ->
-                        callback null, entry
-
-            ,   127
-
-            dfd.promise
+        dfd.promise
