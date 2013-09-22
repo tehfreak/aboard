@@ -116,6 +116,9 @@
         app.use '/api/v1', injector.invoke (AboardApiV1) ->
             app= new AboardApiV1
 
+Регистрирует парсер тела запроса:
+
+            app.use do AboardApiV1.bodyParser
 
 Объявляет обработчики субприложения:
 
@@ -149,6 +152,22 @@
                             log 'entry rejected', err
                             next err
 
+## [POST /entries]()
+Создает запись.
+
+            app.post '/entries'
+            ,   AboardApiV1.validateEntry()
+            ,   AboardApiV1.queryTag()
+            ,   AboardApiV1.saveEntry()
+            ,   (req, res, next) ->
+                    req.entry (entry) ->
+                            log 'saved entry resolved', entry
+                            req.entryTags (tags) ->
+                                log 'saved tags resolved', tags
+                            res.json 201, entry
+                    ,   (err) ->
+                            log 'entry rejected', err
+                            next err
  
 ## [GET /entries/:entry/tags]()
 Отдает теги записи по ее идентификатору.
@@ -368,10 +387,18 @@ Aутентифицирует пользователя Гитхаба.
             app
 
  
+##### Главная страница
+
+    injector.invoke (app) ->
+        fs= require 'fs'
+        app.use (req, res) ->
+            fs.readFile './modules/Aboard/views/templates/index.html', 'utf8', (err, content) ->
+                res.send content
+
+ 
 ##### Обработчик ошибок
 
     injector.invoke (app, log, Error) ->
-
         #app.use (err, req, res, next) ->
         #    log 'error', err
         #    res.status err.status or 500

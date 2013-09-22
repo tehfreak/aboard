@@ -31,6 +31,35 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
 
                 do next
 
+        @validateEntry: () -> (req, res, next) ->
+            res.entry= new Entry req.body
+            do next
+
+        @saveEntry: () -> (req, res, next) ->
+
+            log 'saveEntry', res.entry
+
+            req.entry= Entry.create res.entry, req.maria
+            req.entry (entry) ->
+                    res.entry= entry
+
+                    req.tags (tags) ->
+                        res.entry.tags= []
+                        for t in req.body.tags
+                            for tag in tags
+                                if tag.name == t
+                                    res.entry.tags.push tag
+                        req.entry.tags= EntryTag.insert res.entry.id, res.entry.tags, req.maria
+                        req.entry.tags (tags) ->
+                                res.json 201, res.entry
+                        ,   (err) ->
+                                next err
+
+            ,   (err) ->
+                    res.errors.push res.error= err
+
+            do next
+
         @queryEntryTag: (param) ->
             (req, res, next) ->
                 entryId= req.param param
@@ -71,7 +100,7 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
 
                 log 'queryTag', query
 
-                req.tags= Tag.query query, null
+                req.tags= Tag.query query, req.maria
                 req.tags (tags) ->
                         res.tags= tags
                 ,   (err) ->

@@ -85,6 +85,35 @@ module.exports= (EntryTag, log) -> class Entry
 
 
 
+    @create: (data, db, done) ->
+        entry= new @ data
+        dfd= do deferred
+        console.log 'create', entry
+        db.query "
+            INSERT INTO
+                ??
+               SET
+                ?
+            "
+        ,   [@table, entry]
+        ,   (err, res) =>
+
+                if not err
+                    if res.affectedRows == 1
+                        entry.id= res.insertId
+                        dfd.resolve entry
+                    else
+                        dfd.reject err
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, entry
+        dfd.promise
+
+
+
     @get: (id, db, callback) ->
         entry= null
 

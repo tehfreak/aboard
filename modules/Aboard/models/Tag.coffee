@@ -18,19 +18,35 @@ module.exports= (Entry, log) -> class Tag
 
 
 
-    @query: (query, db, callback) ->
-        tags= []
-
+    @query: (query, db, done) ->
+        tags= null
         dfd= do deferred
 
-        setTimeout =>
+        err= null
+        if done and err
+            return process.nextTick ->
+                done err, tags
 
-            dfd.resolve tags
-            if callback instanceof Function
-                process.nextTick ->
-                    callback null, tags
+        db.query "
+            SELECT
+                Tag.*
+              FROM
+                ?? as Tag
+            "
+        ,   [@table]
+        ,   (err, rows) =>
 
-        ,   1023
+                if not err
+                    tags= []
+                    for row in rows
+                        tags.push new @ row
+                    dfd.resolve tags
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, tags
 
         dfd.promise
 
