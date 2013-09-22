@@ -109,8 +109,9 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
                 do next
 
         @getTagEntries: () -> (req, res, next) ->
+                roles= ['view.anonymous', 'view']
                 req.tag (tag) ->
-                        req.tag.entries= Entry.queryByTag tag, req.maria
+                        req.tag.entries= Entry.queryByTagAndPermissionRoles tag, roles, req.maria
                         req.tag.entries (entries) ->
                                 tag.entries= entries
                         ,   (err) ->

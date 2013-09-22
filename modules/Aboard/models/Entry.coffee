@@ -1,10 +1,10 @@
 deferred= require 'deferred'
 
-module.exports= (EntryTag, log) -> class Entry
+module.exports= (EntryTag, EntryPermission, log) -> class Entry
     @table: 'entry'
 
     @Tag= EntryTag
-
+    @Permission= EntryPermission
 
 
     constructor: (data) ->
@@ -67,6 +67,57 @@ module.exports= (EntryTag, log) -> class Entry
                 Entry.updatedAt DESC
             "
         ,   [@Tag.table, @table, tag.id]
+        ,   (err, rows) =>
+
+                if not err
+                    entries= []
+                    for row in rows
+                        entries.push new @ row
+                    dfd.resolve entries
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, entries
+
+        dfd.promise
+
+
+
+    @queryByTagAndPermissionRoles: (tag, roles, db, done) ->
+        entries= null
+
+        tagId= tag.id
+
+        dfd= do deferred
+
+        err= null
+        if not tag
+            dfd.reject err= Error 'tag is not be null'
+
+        if done and err
+            return process.nextTick ->
+                done err, entries
+
+        db.query "
+            SELECT
+                Entry.*
+              FROM
+                ?? as EntryTag
+              JOIN
+                ?? as EntryPermission
+                ON EntryPermission.id= EntryTag.entryId
+                   AND EntryPermission.role IN(?)
+              JOIN
+                ?? as Entry
+                ON Entry.id= EntryTag.entryId
+             WHERE
+                EntryTag.tagId= ?
+             ORDER BY
+                Entry.updatedAt DESC
+            "
+        ,   [@Tag.table, @Permission.table, roles, @table, tag.id]
         ,   (err, rows) =>
 
                 if not err
