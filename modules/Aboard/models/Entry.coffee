@@ -88,7 +88,7 @@ module.exports= (EntryTag, log) -> class Entry
     @create: (data, db, done) ->
         entry= new @ data
         dfd= do deferred
-        console.log 'create', entry
+
         db.query "
             INSERT INTO
                 ??
