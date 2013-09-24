@@ -224,6 +224,21 @@
                             next err
 
  
+## [POST /tags/:tag/tags]()
+Добавляет предков указанному тегу.
+
+            app.post '/tags/:tagId(\\d+)/tags'
+            ,   AboardApiV1.addTagTags('tagId')
+            ,   (req, res, next) ->
+                    log 'add tag tags', req.body
+                    req.ancestors (ancestors) ->
+                            log 'created tag tags resolved', ancestors
+                            res.json 201, ancestors
+                    ,   (err) ->
+                            log 'created tag tags rejected', err
+                            next err
+
+ 
 ## [GET /tags/:tag]()
 Отдает тег по идентификатору.
 

@@ -1,4 +1,4 @@
-module.exports= (App, Entry, EntryTag, Tag, TagDescendant, Thread, log) ->
+module.exports= (App, Entry, EntryTag, Tag, TagAncestor, TagDescendant, Thread, log) ->
     class AboardApiV1 extends App
 
 
@@ -112,13 +112,46 @@ module.exports= (App, Entry, EntryTag, Tag, TagDescendant, Thread, log) ->
 
                 req.tag= Tag.create req.body, req.maria
                 req.tag (tag) ->
-                        res.tag= res.tag or {}
                         res.tag= tag
                 ,   (err) ->
                         res.errors.push res.error= err
 
                 do next
 
+        @addTagTags: (param) ->
+            (req, res, next) ->
+                tagId= req.param param
+
+                log 'addTagTags', req.body
+
+                ids= []
+                idx= {}
+                for tag in req.body
+                    if not idx[tag.id]
+                        idx[tag.id]= tag
+                        ids.push tag.id
+
+                req.tags= Tag.queryByIds ids, req.maria
+                req.tags (tags) ->
+
+                    ids= []
+                    idx= {}
+                    for tag in tags
+                        if not idx[tag.id]
+                            idx[tag.id]= tag
+                            ids.push tag.id
+
+                    req.ancestors= TagAncestor.queryByTagIds ids, req.maria
+                    req.ancestors (ancestors) ->
+                        for tag in ancestors
+                            if not idx[tag.id]
+                                idx[tag.id]= tag
+                                ids.push tag.id
+                        ancestors= []
+                        for id in ids
+                            ancestors.push idx[id]
+                        req.ancestors= TagAncestor.create tagId, ancestors, req.maria, (err, ancestors) ->
+                            next err
 
         @getTagById: (param) ->
             (req, res, next) ->

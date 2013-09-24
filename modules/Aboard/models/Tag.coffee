@@ -52,6 +52,45 @@ module.exports= (Entry, log) -> class Tag
 
 
 
+    @queryByIds: (ids, db, done) ->
+        tags= null
+        dfd= do deferred
+
+        err= null
+        if not ids.length
+            dfd.reject err= Error 'ids is not be empty'
+
+        if done and err
+            return process.nextTick ->
+                done err, tags
+
+        db.query "
+            SELECT
+                Tag.*
+              FROM
+                ?? as Tag
+             WHERE
+                Tag.id IN(?)
+            "
+        ,   [@table, ids]
+        ,   (err, rows) =>
+
+                if not err
+                    tags= []
+                    for row in rows
+                        tags.push new @ row
+                    dfd.resolve tags
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, tags
+
+        dfd.promise
+
+
+
     @create: (data, db, done) ->
         tag= new @ data
         dfd= do deferred
