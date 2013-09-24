@@ -122,20 +122,35 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
 
                 do next
 
-
-        @getTag: (param) ->
+        @getTagById: (param) ->
             (req, res, next) ->
                 tagId= req.param param
 
-                log 'getTag', tagId
+                log 'getTagById', tagId
 
-                req.tag= Tag.getByName tagId, req.maria
+                req.tag= Tag.getById tagId, req.maria
                 req.tag (tag) ->
                         res.tag= tag
                 ,   (err) ->
                         res.errors.push res.error= err
 
                 do next
+
+        @getTagByName: (param) ->
+            (req, res, next) ->
+                tagName= req.param param
+
+                log 'getTagByName', tagName
+
+                req.tag= Tag.getByName tagName, req.maria
+                req.tag (tag) ->
+                        res.tag= tag
+                ,   (err) ->
+                        res.errors.push res.error= err
+
+                do next
+
+
 
         @getTagEntries: () -> (req, res, next) ->
                 req.tag (tag) ->

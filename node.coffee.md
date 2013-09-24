@@ -228,8 +228,27 @@
 ## [GET /tags/:tag]()
 Отдает тег по идентификатору.
 
-            app.get '/tags/:tag'
-            ,   AboardApiV1.getTag('tag')
+            app.get '/tags/:tagId(\\d+)'
+            ,   AboardApiV1.getTagById('tagId')
+            ,   AboardApiV1.getTagEntries()
+            ,   (req, res, next) ->
+                    req.tag (tag) ->
+                            log 'tag resolved', res.tag
+                            if not tag
+                                return res.json 404, tag
+                            req.tag.entries (entries) ->
+                                    log 'tag entries resolved', res.tag.entries
+                                    return res.json tag
+                    ,   (err) ->
+                            log 'tag rejected', err
+                            return next err
+
+ 
+## [GET /tags/:tag]()
+Отдает тег по идентификатору.
+
+            app.get '/tags/:tag(\\w+)'
+            ,   AboardApiV1.getTagByName('tag')
             ,   AboardApiV1.getTagEntries()
             ,   (req, res, next) ->
                     req.tag (tag) ->

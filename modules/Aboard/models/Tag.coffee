@@ -70,6 +70,44 @@ module.exports= (Entry, log) -> class Tag
 
 
 
+    @getById: (id, db, done) ->
+        tag= null
+        dfd= do deferred
+
+        err= null
+        if not id
+            dfd.reject err= Error 'id of tag is not be null'
+
+        if done and err
+            return process.nextTick ->
+                done err, tag
+
+        db.query "
+            SELECT
+                Tag.*
+              FROM
+                ?? as Tag
+             WHERE
+                Tag.id= ?
+            "
+        ,   [@table, id]
+        ,   (err, rows) =>
+
+                if not err
+                    if rows.length
+                        tag= new @ rows.shift()
+                    dfd.resolve tag
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, tag
+
+        dfd.promise
+
+
+
     @getByName: (name, db, done) ->
         tag= null
         dfd= do deferred
@@ -84,25 +122,13 @@ module.exports= (Entry, log) -> class Tag
 
         db.query "
             SELECT
-                Tag.id,
-                Tag.name,
-                Tag.createdAt,
-                Tag.updatedAt,
-                Tag.deletedAt
+                Tag.*
               FROM
                 ?? as Tag
-              LEFT OUTER JOIN
-                ?? as EntryTag
-                ON EntryTag.tagId= Tag.id
-              LEFT OUTER JOIN
-                ?? as Entry
-                ON Entry.id= EntryTag.entryId
              WHERE
                 Tag.name= ?
-             GROUP BY
-                Tag.id
             "
-        ,   [@table, @Entry.Tag.table, @Entry.table, name]
+        ,   [@table, name]
         ,   (err, rows) =>
 
                 if not err
