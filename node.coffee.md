@@ -263,6 +263,40 @@
                             return next err
 
  
+## [GET /tags/:tag/descendants]()
+Отдает потомков указанного тега.
+
+            app.get '/tags/:tagId(\\d+)/descendants'
+            ,   AboardApiV1.getTagById('tagId')
+            ,   AboardApiV1.getTagDescendants()
+            ,   (req, res, next) ->
+                    req.tag (tag) ->
+                            log 'tag resolved', res.tag
+                            if not tag
+                                return res.json 404, tag
+                            req.tag.descendants (tags) ->
+                                    log 'tag descendants resolved', res.tag.descendants
+                                    return res.json tag
+                    ,   (err) ->
+                            log 'tag rejected', err
+                            return next err
+
+            app.get '/tags/:tag(\\w+)/descendants'
+            ,   AboardApiV1.getTagByName('tag')
+            ,   AboardApiV1.getTagDescendants()
+            ,   (req, res, next) ->
+                    req.tag (tag) ->
+                            log 'tag resolved', res.tag
+                            if not tag
+                                return res.json 404, tag
+                            req.tag.descendants (tags) ->
+                                    log 'tag descendants resolved', res.tag.descendants
+                                    return res.json tag
+                    ,   (err) ->
+                            log 'tag rejected', err
+                            return next err
+
+ 
 ## [GET /threads]()
 Отдает список тредов.
 

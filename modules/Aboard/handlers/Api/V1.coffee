@@ -1,4 +1,4 @@
-module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
+module.exports= (App, Entry, EntryTag, Tag, TagDescendant, Thread, log) ->
     class AboardApiV1 extends App
 
 
@@ -122,6 +122,7 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
 
                 do next
 
+
         @getTagById: (param) ->
             (req, res, next) ->
                 tagId= req.param param
@@ -150,7 +151,15 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
 
                 do next
 
-
+        @getTagDescendants: () -> (req, res, next) ->
+                req.tag (tag) ->
+                        log 'query Tag Descendants'
+                        req.tag.descendants= TagDescendant.queryByTag tag, req.maria
+                        req.tag.descendants (tags) ->
+                                tag.descendants= tags
+                        ,   (err) ->
+                                res.errors.push res.error= err
+                do next
 
         @getTagEntries: () -> (req, res, next) ->
                 req.tag (tag) ->
@@ -160,6 +169,8 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
                         ,   (err) ->
                                 res.errors.push res.error= err
                 do next
+
+
 
         @queryThread: () ->
             (req, res, next) ->
