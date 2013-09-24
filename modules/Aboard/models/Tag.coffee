@@ -52,19 +52,31 @@ module.exports= (Entry, log) -> class Tag
 
 
 
-    @post: (data, db, callback) ->
-        tag= null
-
+    @create: (data, db, done) ->
+        tag= new @ data
         dfd= do deferred
 
-        setTimeout =>
+        db.query "
+            INSERT INTO
+                ??
+               SET
+                ?
+            "
+        ,   [@table, tag]
+        ,   (err, res) =>
 
-            dfd.resolve tag= new @ data
-            if callback instanceof Function
-                process.nextTick ->
-                    callback null, tag
+                if not err
+                    if res.affectedRows == 1
+                        tag.id= res.insertId
+                        dfd.resolve tag
+                    else
+                        dfd.reject err
+                else
+                    dfd.reject err
 
-        ,   1023
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, tag
 
         dfd.promise
 

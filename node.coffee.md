@@ -215,13 +215,13 @@
 Добавляет тег.
 
             app.post '/tags'
-            ,   AboardApiV1.postTag('entry')
+            ,   AboardApiV1.addTag()
             ,   (req, res, next) ->
                     req.tag (tag) ->
-                            log 'created entry tag resolved', tag
+                            log 'created tag resolved', tag
                             res.json tag
                     ,   (err) ->
-                            log 'created entry tag rejected', err
+                            log 'created tag rejected', err
                             next err
 
  

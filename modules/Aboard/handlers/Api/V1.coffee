@@ -108,12 +108,12 @@ module.exports= (App, Entry, EntryTag, Tag, TagDescendant, Thread, log) ->
 
                 do next
 
-        @postTag: () ->
+        @addTag: () ->
             (req, res, next) ->
 
-                log 'postTag', query
+                log 'addTag', req.body
 
-                req.tag= Tag.post req.body, null
+                req.tag= Tag.create req.body, req.maria
                 req.tag (tag) ->
                         res.tag= res.tag or {}
                         res.tag= tag
