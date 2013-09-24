@@ -156,17 +156,16 @@
 Создает запись.
 
             app.post '/entries'
-            ,   AboardApiV1.validateEntry()
             ,   AboardApiV1.queryTag()
-            ,   AboardApiV1.saveEntry()
+            ,   AboardApiV1.addEntry()
             ,   (req, res, next) ->
                     req.entry (entry) ->
-                            log 'saved entry resolved', entry
+                            log 'created entry resolved', entry
                             req.entryTags (tags) ->
-                                log 'saved tags resolved', tags
+                                log 'created entry tags resolved', tags
                             res.json 201, entry
                     ,   (err) ->
-                            log 'entry rejected', err
+                            log 'created entry rejected', err
                             next err
  
 ## [GET /entries/:entry/tags]()

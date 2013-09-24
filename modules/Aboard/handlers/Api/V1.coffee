@@ -31,15 +31,12 @@ module.exports= (App, Entry, EntryTag, Tag, TagDescendant, Thread, log) ->
 
                 do next
 
-        @validateEntry: () -> (req, res, next) ->
-            res.entry= new Entry req.body
-            do next
+        @addEntry: () -> (req, res, next) ->
+            entry= new Entry req.body
 
-        @saveEntry: () -> (req, res, next) ->
+            log 'addEntry', entry
 
-            log 'saveEntry', res.entry
-
-            req.entry= Entry.create res.entry, req.maria
+            req.entry= Entry.create entry, req.maria
             req.entry (entry) ->
                     res.entry= entry
 
@@ -49,7 +46,7 @@ module.exports= (App, Entry, EntryTag, Tag, TagDescendant, Thread, log) ->
                             for tag in tags
                                 if tag.name == t
                                     res.entry.tags.push tag
-                        req.entry.tags= EntryTag.insert res.entry.id, res.entry.tags, req.maria
+                        req.entry.tags= EntryTag.create res.entry.id, res.entry.tags, req.maria
                         req.entry.tags (tags) ->
                                 res.json 201, res.entry
                         ,   (err) ->

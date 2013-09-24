@@ -29,14 +29,14 @@ module.exports= (log) -> class EntryTag
 
 
 
-    @insert: (entryId, tags, db, done) ->
+    @create: (entryId, tags, db, done) ->
 
         bulk= []
         for tag in tags
             bulk.push [entryId, tag.id]
 
         dfd= do deferred
-        console.log 'insert', bulk
+
         db.query "
             INSERT INTO
                 ??
@@ -52,7 +52,6 @@ module.exports= (log) -> class EntryTag
 
                 if not err
                     if res.affectedRows == bulk.length
-                        console.log 'OK'
                         dfd.resolve tags
                     else
                         dfd.reject err
