@@ -123,7 +123,7 @@
 Объявляет обработчики субприложения:
 
  
-## [GET /entries]()
+## [GET /api/v1/entries]()
 Отдает список записей.
 
             app.get '/entries'
@@ -137,7 +137,7 @@
                             next err
 
  
-## [GET /entries/:entry]()
+## [GET /api/v1/entries/:entry]()
 Отдает запись по идентификатору.
 
             app.get '/entries/:entry'
@@ -152,7 +152,7 @@
                             log 'entry rejected', err
                             next err
 
-## [POST /entries]()
+## [POST /api/v1/entries]()
 Создает запись.
 
             app.post '/entries'
@@ -168,7 +168,7 @@
                             log 'created entry rejected', err
                             next err
  
-## [GET /entries/:entry/tags]()
+## [GET /api/v1/entries/:entry/tags]()
 Отдает теги записи по ее идентификатору.
 
             app.get '/entries/:entry/tags'
@@ -182,7 +182,7 @@
                             next err
 
  
-## [POST /entries/:entry/tags]()
+## [POST /api/v1/entries/:entry/tags]()
 Отдает теги записи по ее идентификатору.
 
             app.post '/entries/:entry/tags'
@@ -196,7 +196,7 @@
                             next err
 
  
-## [GET /tags]()
+## [GET /api/v1/tags]()
 Отдает список тегов.
 
             app.get '/tags'
@@ -210,7 +210,7 @@
                             next err
 
  
-## [POST /tags]()
+## [POST /api/v1/tags]()
 Добавляет тег.
 
             app.post '/tags'
@@ -224,7 +224,7 @@
                             next err
 
  
-## [POST /tags/:tag/ancestors]()
+## [POST /api/v1/tags/:tag/ancestors]()
 Добавляет предков указанному тегу.
 
             app.post '/tags/:tagId(\\d+)/ancestors'
@@ -239,7 +239,7 @@
                             next err
 
  
-## [DELETE /tags/:tag]()
+## [DELETE /api/v1/tags/:tag]()
 Удаляет указанный тег.
 
             app.delete '/tags/:tagId(\\d+)'
@@ -252,7 +252,7 @@
                             log 'deleted tag rejected', err
                             next err
 
-## [DELETE /tags/:tag/ancestors/:ancestorId]()
+## [DELETE /api/v1/tags/:tag/ancestors/:ancestorId]()
 Удаляет связь указанного предка с указанным тегом.
 
             app.delete '/tags/:tagId(\\d+)/ancestors/:ancestorId(\\d+)'
@@ -266,7 +266,7 @@
                             next err
 
  
-## [GET /tags/:tag]()
+## [GET /api/v1/tags/:tag]()
 Отдает тег по идентификатору.
 
             app.get '/tags/:tagId(\\d+)'
@@ -285,7 +285,7 @@
                             return next err
 
  
-## [GET /tags/:tag]()
+## [GET /api/v1/tags/:tag]()
 Отдает тег по идентификатору.
 
             app.get '/tags/:tag(\\w+)'
@@ -304,7 +304,7 @@
                             return next err
 
  
-## [GET /tags/:tag/descendants]()
+## [GET /api/v1/tags/:tag/descendants]()
 Отдает потомков указанного тега.
 
             app.get '/tags/:tagId(\\d+)/descendants'
@@ -338,7 +338,7 @@
                             return next err
 
  
-## [GET /threads]()
+## [GET /api/v1/threads]()
 Отдает список тредов.
 
             app.get '/threads'
@@ -352,7 +352,7 @@
                             next err
 
  
-## [GET /threads/:thread]()
+## [GET /api/v1/threads/:thread]()
 Отдает тред по идентификатору.
 
             app.get '/threads/:thread'
@@ -492,7 +492,11 @@ Aутентифицирует пользователя Гитхаба.
  
 ##### Обработчик ошибок
 
+    deferred= require 'deferred'
+
     injector.invoke (app, log, Error) ->
+        deferred.monitor '7000', (err) ->
+            log 'promise error', err
         #app.use (err, req, res, next) ->
         #    log 'error', err
         #    res.status err.status or 500
