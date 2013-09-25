@@ -1,4 +1,4 @@
-module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
+module.exports= (App, Entry, EntryTag, Tag, TagAncestor, TagDescendant, Thread, log) ->
     class AboardApiV1 extends App
 
 
@@ -30,6 +30,32 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
                         res.errors.push res.error= err
 
                 do next
+
+        @addEntry: () -> (req, res, next) ->
+            entry= new Entry req.body
+
+            log 'addEntry', entry
+
+            req.entry= Entry.create entry, req.maria
+            req.entry (entry) ->
+                    res.entry= entry
+
+                    req.tags (tags) ->
+                        res.entry.tags= []
+                        for t in req.body.tags
+                            for tag in tags
+                                if tag.name == t
+                                    res.entry.tags.push tag
+                        req.entry.tags= EntryTag.create res.entry.id, res.entry.tags, req.maria
+                        req.entry.tags (tags) ->
+                                res.json 201, res.entry
+                        ,   (err) ->
+                                next err
+
+            ,   (err) ->
+                    res.errors.push res.error= err
+
+            do next
 
         @queryEntryTag: (param) ->
             (req, res, next) ->
@@ -65,58 +91,107 @@ module.exports= (App, Entry, EntryTag, Tag, Thread, log) ->
 
 
 
-        @queryTag: () ->
-            (req, res, next) ->
-                query= req.query
+        @queryTag: () -> (req, res, next) ->
+            req.tags= Tag.query req.query, req.maria
+            req.tags (tags) ->
+                    res.tags= tags
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-                log 'queryTag', query
+        @addTag: () -> (req, res, next) ->
+            req.tag= Tag.create req.body, req.maria
+            req.tag (tag) ->
+                    res.tag= tag
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-                req.tags= Tag.query query, null
-                req.tags (tags) ->
-                        res.tags= tags
-                ,   (err) ->
-                        res.errors.push res.error= err
+        @addTagTags: (param) -> (req, res, next) ->
+            tagId= req.param param
+            ids= []
+            idx= {}
+            for tag in req.body
+                if not idx[tag.id]
+                    idx[tag.id]= tag
+                    ids.push tag.id
+            req.tags= Tag.queryByIds ids, req.maria
+            req.tags (tags) ->
+                ids= []
+                idx= {}
+                for tag in tags
+                    if not idx[tag.id]
+                        idx[tag.id]= tag
+                        ids.push tag.id
+                req.ancestors= TagAncestor.queryByTagIds ids, req.maria
+                req.ancestors (ancestors) ->
+                    for tag in ancestors
+                        if not idx[tag.id]
+                            idx[tag.id]= tag
+                            ids.push tag.id
+                    ancestors= []
+                    for id in ids
+                        ancestors.push idx[id]
+                    req.ancestors= TagAncestor.create tagId, ancestors, req.maria, (err, ancestors) ->
+                        next err
 
-                do next
+        @delTag: (param) -> (req, res, next) ->
+            tagId= req.param param
+            req.tag= Tag.delete tagId, req.maria
+            req.tag (tag) ->
+                    res.tag= tag
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-        @postTag: () ->
-            (req, res, next) ->
+        @delTagAncestor: (paramTag, paramAncestor) -> (req, res, next) ->
+            tagId= req.param paramTag
+            ancestorId= req.param paramAncestor
+            req.ancestor= TagAncestor.delete tagId, ancestorId, req.maria
+            req.ancestor (tag) ->
+                    res.ancestor= tag
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-                log 'postTag', query
+        @getTagById: (param) -> (req, res, next) ->
+            tagId= req.param param
+            req.tag= Tag.getById tagId, req.maria
+            req.tag (tag) ->
+                    res.tag= tag
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-                req.tag= Tag.post req.body, null
-                req.tag (tag) ->
-                        res.tag= res.tag or {}
-                        res.tag= tag
-                ,   (err) ->
-                        res.errors.push res.error= err
+        @getTagByName: (param) -> (req, res, next) ->
+            tagName= req.param param
+            req.tag= Tag.getByName tagName, req.maria
+            req.tag (tag) ->
+                    res.tag= tag
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-                do next
-
-
-        @getTag: (param) ->
-            (req, res, next) ->
-                tagId= req.param param
-
-                log 'getTag', tagId
-
-                req.tag= Tag.getByName tagId, req.maria
-                req.tag (tag) ->
-                        res.tag= tag
-                ,   (err) ->
-                        res.errors.push res.error= err
-
-                do next
+        @getTagDescendants: () -> (req, res, next) ->
+            req.tag (tag) ->
+                    req.tag.descendants= TagDescendant.queryByTag tag, req.maria
+                    req.tag.descendants (tags) ->
+                            tag.descendants= tags
+                    ,   (err) ->
+                            res.errors.push res.error= err
+            do next
 
         @getTagEntries: () -> (req, res, next) ->
-                roles= ['view.anonymous', 'view']
-                req.tag (tag) ->
-                        req.tag.entries= Entry.queryByTagAndPermissionRoles tag, roles, req.maria
-                        req.tag.entries (entries) ->
-                                tag.entries= entries
-                        ,   (err) ->
-                                res.errors.push res.error= err
-                do next
+            roles= ['view.anonymous', 'view']
+            req.tag (tag) ->
+                    req.tag.entries= Entry.queryByTagAndPermissionRoles tag, roles, req.maria
+                    req.tag.entries (entries) ->
+                            tag.entries= entries
+                    ,   (err) ->
+                            res.errors.push res.error= err
+            do next
+
+
 
         @queryThread: () ->
             (req, res, next) ->

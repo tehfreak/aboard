@@ -1,11 +1,16 @@
 deferred= require 'deferred'
-
-accounts=
-    'tehfreak': {id:1, user: {id:1, name:'tehfreak'}}
+crypto= require 'crypto'
 
 module.exports= (log) -> class Account
+    @table: 'user_account'
 
-    constructor: () ->
+
+
+    constructor: (data) ->
+        @id= data.id
+        @userId= data.userId
+        @name= data.name
+        @pass= data.pass
 
 
 
@@ -19,29 +24,44 @@ module.exports= (log) -> class Account
 
 
 
-    @auth: (identity, credential, db, done) ->
-        account= null
-
+    @auth: (account, db, done) ->
         dfd= do deferred
 
-        setTimeout =>
+        err= null
+        if not account
+            dfd.reject err= Error 'account is not be null'
 
-            account= accounts[identity]
+        if done and err
+            return process.nextTick ->
+                done err, account
 
-            if account
-                err= null
-                dfd.resolve account
-            else
-                err= Error 'bad credentials'
-                dfd.reject err
+        db.query "
+            SELECT
+                Account.*
+              FROM
+                ?? as Account
+             WHERE
+                Account.name= ?
+               AND
+                Account.pass= ?
+            "
+        ,   [@table, account.name, account.pass]
+        ,   (err, rows) =>
+                account= null
 
-            if done instanceof Function
-                process.nextTick ->
-                    done err, account
+                if not err
+                    if rows.length
+                        account= new @ rows.shift()
+                    dfd.resolve account
+                else
+                    dfd.reject err
 
-        ,   127
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, account
 
         dfd.promise
+
 
 
     @query: (query, db, done) ->
@@ -77,3 +97,10 @@ module.exports= (log) -> class Account
         ,   127
 
         dfd.promise
+
+
+
+    @sha1: (pass) ->
+        sha1= crypto.createHash 'sha1'
+        sha1.update pass
+        sha1.digest 'hex'

@@ -29,18 +29,37 @@ module.exports= (log) -> class EntryTag
 
 
 
-    @post: (entryId, data, db, callback) ->
-        tag= null
+    @create: (entryId, tags, db, done) ->
+
+        bulk= []
+        for tag in tags
+            bulk.push [entryId, tag.id]
 
         dfd= do deferred
 
-        setTimeout =>
+        db.query "
+            INSERT INTO
+                ??
+            (
+                entryId,
+                tagId
+            )
+            VALUES
+                ?
+            "
+        ,   [@table, bulk]
+        ,   (err, res) =>
 
-            dfd.resolve tag= new @ data
-            if callback instanceof Function
-                process.nextTick ->
-                    callback null, tag
+                if not err
+                    if res.affectedRows == bulk.length
+                        dfd.resolve tags
+                    else
+                        dfd.reject err
+                else
+                    dfd.reject err
 
-        ,   1023
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, tags
 
         dfd.promise

@@ -14,5 +14,7 @@ module.exports= class AboardModule extends Module
         @factory 'EntryPermission', require './Aboard/models/Entry/Permission'
 
         @factory 'Tag', require './Aboard/models/Tag'
+        @factory 'TagAncestor', require './Aboard/models/Tag/Ancestor'
+        @factory 'TagDescendant', require './Aboard/models/Tag/Descendant'
 
         @factory 'Thread', require './Aboard/models/Thread'

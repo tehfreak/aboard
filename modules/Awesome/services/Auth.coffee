@@ -1,6 +1,6 @@
 {Passport}= require 'passport'
 
-module.exports= (Account, AccountGithub, log) -> class AuthService extends Passport
+module.exports= (Account, AccountGithub, config, log) -> class AuthService extends Passport
 
 
 
@@ -14,24 +14,22 @@ module.exports= (Account, AccountGithub, log) -> class AuthService extends Passp
             Account.deserialize id, null, done
 
         passportLocal= require 'passport-local'
-
-        @use new passportLocal.Strategy (name, pass, done) ->
-            console.log 'auth', arguments
-            Account.auth name, pass, null, done
+        @use new passportLocal.Strategy
+            usernameField: 'name'
+            passwordField: 'pass'
+        ,   (name, pass, done) =>
+                done null, new Account
+                    name: name
+                    pass: Account.sha1 pass
 
         passportGithub= require 'passport-github'
-
         @use new passportGithub.Strategy
-            clientID: '8356143f06e12555a13e'
-            clientSecret: 'a279d0c58218564979d5b5188fb48c0b5a481414'
-        ,   (accessToken, refreshToken, profile, done) ->
-                account= AccountGithub.auth profile, null, done
-                account (account) ->
-                        log 'account resolved', account
-                        done null, account
-                ,   (err) ->
-                        log 'account rejected', err
-                        done err
+            clientID: config.auth.github.clientID
+            clientSecret: config.auth.github.clientSecret
+        ,   (accessToken, refreshToken, github, done) ->
+                done null, new AccountGithub
+                    providerId: github.id
+                    providerName: github.username
 
 
 

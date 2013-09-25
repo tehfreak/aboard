@@ -116,11 +116,14 @@
         app.use '/api/v1', injector.invoke (AboardApiV1) ->
             app= new AboardApiV1
 
+Регистрирует парсер тела запроса:
+
+            app.use do AboardApiV1.bodyParser
 
 Объявляет обработчики субприложения:
 
  
-## [GET /entries]()
+## [GET /api/v1/entries]()
 Отдает список записей.
 
             app.get '/entries'
@@ -134,7 +137,7 @@
                             next err
 
  
-## [GET /entries/:entry]()
+## [GET /api/v1/entries/:entry]()
 Отдает запись по идентификатору.
 
             app.get '/entries/:entry'
@@ -149,8 +152,23 @@
                             log 'entry rejected', err
                             next err
 
+## [POST /api/v1/entries]()
+Создает запись.
+
+            app.post '/entries'
+            ,   AboardApiV1.queryTag()
+            ,   AboardApiV1.addEntry()
+            ,   (req, res, next) ->
+                    req.entry (entry) ->
+                            log 'created entry resolved', entry
+                            req.entryTags (tags) ->
+                                log 'created entry tags resolved', tags
+                            res.json 201, entry
+                    ,   (err) ->
+                            log 'created entry rejected', err
+                            next err
  
-## [GET /entries/:entry/tags]()
+## [GET /api/v1/entries/:entry/tags]()
 Отдает теги записи по ее идентификатору.
 
             app.get '/entries/:entry/tags'
@@ -164,7 +182,7 @@
                             next err
 
  
-## [POST /entries/:entry/tags]()
+## [POST /api/v1/entries/:entry/tags]()
 Отдает теги записи по ее идентификатору.
 
             app.post '/entries/:entry/tags'
@@ -178,7 +196,7 @@
                             next err
 
  
-## [GET /tags]()
+## [GET /api/v1/tags]()
 Отдает список тегов.
 
             app.get '/tags'
@@ -192,25 +210,67 @@
                             next err
 
  
-## [POST /tags]()
+## [POST /api/v1/tags]()
 Добавляет тег.
 
             app.post '/tags'
-            ,   AboardApiV1.postTag('entry')
+            ,   AboardApiV1.addTag()
             ,   (req, res, next) ->
                     req.tag (tag) ->
-                            log 'created entry tag resolved', tag
+                            log 'created tag resolved', tag
                             res.json tag
                     ,   (err) ->
-                            log 'created entry tag rejected', err
+                            log 'created tag rejected', err
                             next err
 
  
-## [GET /tags/:tag]()
+## [POST /api/v1/tags/:tag/ancestors]()
+Добавляет предков указанному тегу.
+
+            app.post '/tags/:tagId(\\d+)/ancestors'
+            ,   AboardApiV1.addTagTags('tagId')
+            ,   (req, res, next) ->
+                    log 'add tag ancestors', req.body
+                    req.ancestors (ancestors) ->
+                            log 'created tag ancestors resolved', ancestors
+                            res.json 201, ancestors
+                    ,   (err) ->
+                            log 'created tag ancestors rejected', err
+                            next err
+
+ 
+## [DELETE /api/v1/tags/:tag]()
+Удаляет указанный тег.
+
+            app.delete '/tags/:tagId(\\d+)'
+            ,   AboardApiV1.delTag('tagId')
+            ,   (req, res, next) ->
+                    req.tag (tag) ->
+                            log 'deleted tag resolved', tag
+                            res.json 200, tag
+                    ,   (err) ->
+                            log 'deleted tag rejected', err
+                            next err
+
+## [DELETE /api/v1/tags/:tag/ancestors/:ancestorId]()
+Удаляет связь указанного предка с указанным тегом.
+
+            app.delete '/tags/:tagId(\\d+)/ancestors/:ancestorId(\\d+)'
+            ,   AboardApiV1.delTagAncestor('tagId', 'ancestorId')
+            ,   (req, res, next) ->
+                    req.ancestor (tag) ->
+                            log 'deleted tag ancestor resolved', tag
+                            res.json 200, tag
+                    ,   (err) ->
+                            log 'deleted tag rejected', err
+                            next err
+
+ 
+## [GET /api/v1/tags/:tag]()
 Отдает тег по идентификатору.
 
-            app.get '/tags/:tag'
-            ,   AboardApiV1.getTag('tag')
+            app.get '/tags/:tagId(\\d+)'
+            ,   AboardApiV1.getTagById('tagId')
             ,   AboardApiV1.getTagEntries()
             ,   (req, res, next) ->
                     req.tag (tag) ->
@@ -225,7 +285,60 @@
                             return next err
 
  
-## [GET /threads]()
+## [GET /api/v1/tags/:tag]()
+Отдает тег по идентификатору.
+
+            app.get '/tags/:tag(\\w+)'
+            ,   AboardApiV1.getTagByName('tag')
+            ,   AboardApiV1.getTagEntries()
+            ,   (req, res, next) ->
+                    req.tag (tag) ->
+                            log 'tag resolved', res.tag
+                            if not tag
+                                return res.json 404, tag
+                            req.tag.entries (entries) ->
+                                    log 'tag entries resolved', res.tag.entries
+                                    return res.json tag
+                    ,   (err) ->
+                            log 'tag rejected', err
+                            return next err
+
+ 
+## [GET /api/v1/tags/:tag/descendants]()
+Отдает потомков указанного тега.
+
+            app.get '/tags/:tagId(\\d+)/descendants'
+            ,   AboardApiV1.getTagById('tagId')
+            ,   AboardApiV1.getTagDescendants()
+            ,   (req, res, next) ->
+                    req.tag (tag) ->
+                            log 'tag resolved', res.tag
+                            if not tag
+                                return res.json 404, tag
+                            req.tag.descendants (tags) ->
+                                    log 'tag descendants resolved', res.tag.descendants
+                                    return res.json tag
+                    ,   (err) ->
+                            log 'tag rejected', err
+                            return next err
+
+            app.get '/tags/:tag(\\w+)/descendants'
+            ,   AboardApiV1.getTagByName('tag')
+            ,   AboardApiV1.getTagDescendants()
+            ,   (req, res, next) ->
+                    req.tag (tag) ->
+                            log 'tag resolved', res.tag
+                            if not tag
+                                return res.json 404, tag
+                            req.tag.descendants (tags) ->
+                                    log 'tag descendants resolved', res.tag.descendants
+                                    return res.json tag
+                    ,   (err) ->
+                            log 'tag rejected', err
+                            return next err
+
+ 
+## [GET /api/v1/threads]()
 Отдает список тредов.
 
             app.get '/threads'
@@ -239,7 +352,7 @@
                             next err
 
  
-## [GET /threads/:thread]()
+## [GET /api/v1/threads/:thread]()
 Отдает тред по идентификатору.
 
             app.get '/threads/:thread'
@@ -302,7 +415,7 @@
 Aутентифицирует пользователя.
 
             app.post '/api/v1/user/auth'
-            ,   auth.authenticate('local')
+            ,   AwesomeApiV1.authUser()
             ,   (req, res, next) ->
                     res.json req.account
 
@@ -311,15 +424,13 @@ Aутентифицирует пользователя.
 Aутентифицирует пользователя Гитхаба.
 
             app.get '/login/github'
-            ,   auth.authenticate('github')
-            ,   (req, res, next) ->
-                    log 'auth from github'
+            ,   AwesomeApiV1.authUserGithub()
 
             app.get '/login/github/callback'
-            ,   auth.authenticate('github', {failureRedirect: '/login'})
+            ,   AwesomeApiV1.authUserGithub()
             ,   (req, res) ->
                     log 'вошел с гитхаба', req.account
-                    res.send 'Привет!'
+                    res.json req.account
 
  
 ## [POST /logout]()
@@ -368,10 +479,22 @@ Aутентифицирует пользователя Гитхаба.
             app
 
  
+##### Главная страница
+
+    injector.invoke (app) ->
+        fs= require 'fs'
+        app.use (req, res) ->
+            fs.readFile './modules/Aboard/views/templates/index.html', 'utf8', (err, content) ->
+                res.send content
+
+ 
 ##### Обработчик ошибок
 
-    injector.invoke (app, log, Error) ->
+    deferred= require 'deferred'
 
+    injector.invoke (app, log, Error) ->
+        deferred.monitor '7000', (err) ->
+            log 'promise error', err
         #app.use (err, req, res, next) ->
         #    log 'error', err
         #    res.status err.status or 500

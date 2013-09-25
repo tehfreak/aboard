@@ -125,12 +125,34 @@ module.exports= (EntryTag, EntryPermission, log) -> class Entry
                     for row in rows
                         entries.push new @ row
                     dfd.resolve entries
+
+
+
+    @create: (data, db, done) ->
+        entry= new @ data
+        dfd= do deferred
+
+        db.query "
+            INSERT INTO
+                ??
+               SET
+                ?
+            "
+        ,   [@table, entry]
+        ,   (err, res) =>
+
+                if not err
+                    if res.affectedRows == 1
+                        entry.id= res.insertId
+                        dfd.resolve entry
+                    else
+                        dfd.reject err
                 else
                     dfd.reject err
 
                 if done instanceof Function
                     process.nextTick ->
-                        done err, entries
+                        done err, entry
 
         dfd.promise
 
