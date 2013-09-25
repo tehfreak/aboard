@@ -424,15 +424,13 @@ Aутентифицирует пользователя.
 Aутентифицирует пользователя Гитхаба.
 
             app.get '/login/github'
-            ,   auth.authenticate('github')
-            ,   (req, res, next) ->
-                    log 'auth from github'
+            ,   AwesomeApiV1.authUserGithub()
 
             app.get '/login/github/callback'
-            ,   auth.authenticate('github', {failureRedirect: '/login'})
+            ,   AwesomeApiV1.authUserGithub()
             ,   (req, res) ->
                     log 'вошел с гитхаба', req.account
-                    res.send 'Привет!'
+                    res.json req.account
 
  
 ## [POST /logout]()

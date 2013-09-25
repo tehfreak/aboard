@@ -1,4 +1,4 @@
-module.exports= (App, Account, User, auth, log) ->
+module.exports= (App, Account, AccountGithub, User, auth, log) ->
     class AwesomeApiV1 extends App
 
 
@@ -19,6 +19,19 @@ module.exports= (App, Account, User, auth, log) ->
         @authUser: () -> (req, res, next) ->
             handler= auth.authenticate 'local', (err, account) ->
                 account= Account.auth account, req.maria
+                account (account) ->
+                    if not account
+                        res.json 400, account
+                    else
+                        req.login account, (err) ->
+                            next err
+            handler req, res, next
+
+
+
+        @authUserGithub: () -> (req, res, next) ->
+            handler= auth.authenticate 'github', (err, account) ->
+                account= AccountGithub.auth account, req.maria
                 account (account) ->
                     if not account
                         res.json 400, account

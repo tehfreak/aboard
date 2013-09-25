@@ -1,24 +1,52 @@
 deferred= require 'deferred'
 
-accounts=
-    '386459': {id:1, user: {id:1, name:'tehfreak'}}
-
-module.exports= (log) -> class Account
-
-    constructor: () ->
+module.exports= (Account, log) -> class AccountGithub extends Account
+    @table: 'user_account_github'
 
 
 
-    @auth: (profile, db, done) ->
+    constructor: (data) ->
+        @id= data.id
+        @userId= data.userId
+        @provider= 'github'
+        @providerId= data.providerId
+        @providerName= data.providerName
 
-        log 'аутентифицировать или зарегистрировать пользователя'
 
+
+    @auth: (account, db, done) ->
         dfd= do deferred
 
-        account= @get profile.id, db
-        account (account) ->
-            log 'аккаунт найден', account
-            dfd.resolve account
+        err= null
+        if not account
+            dfd.reject err= Error 'account is not be null'
+
+        if done and err
+            return process.nextTick ->
+                done err, account
+
+        db.query "
+            SELECT
+                Account.*
+              FROM
+                ?? as Account
+             WHERE
+                Account.providerId= ?
+            "
+        ,   [@table, account.providerId]
+        ,   (err, rows) =>
+                account= null
+
+                if not err
+                    if rows.length
+                        account= new @ rows.shift()
+                    dfd.resolve account
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, account
 
         dfd.promise
 

@@ -13,6 +13,12 @@
       "redis": {
         "host": "localhost", "port": 6379
       }
+    },
+    "auth": {
+      "github": {
+        "clientID": "8356143f06e12555a13e",
+        "clientSecret": "a279d0c58218564979d5b5188fb48c0b5a481414"
+      }
     }
   },
 
