@@ -224,18 +224,18 @@
                             next err
 
  
-## [POST /tags/:tag/tags]()
+## [POST /tags/:tag/ancestors]()
 Добавляет предков указанному тегу.
 
-            app.post '/tags/:tagId(\\d+)/tags'
+            app.post '/tags/:tagId(\\d+)/ancestors'
             ,   AboardApiV1.addTagTags('tagId')
             ,   (req, res, next) ->
-                    log 'add tag tags', req.body
+                    log 'add tag ancestors', req.body
                     req.ancestors (ancestors) ->
-                            log 'created tag tags resolved', ancestors
+                            log 'created tag ancestors resolved', ancestors
                             res.json 201, ancestors
                     ,   (err) ->
-                            log 'created tag tags rejected', err
+                            log 'created tag ancestors rejected', err
                             next err
 
  
@@ -252,10 +252,10 @@
                             log 'deleted tag rejected', err
                             next err
 
-## [DELETE /tags/:tag/tags/:ancestorId]()
+## [DELETE /tags/:tag/ancestors/:ancestorId]()
 Удаляет связь указанного предка с указанным тегом.
 
-            app.delete '/tags/:tagId(\\d+)/tags/:ancestorId(\\d+)'
+            app.delete '/tags/:tagId(\\d+)/ancestors/:ancestorId(\\d+)'
             ,   AboardApiV1.delTagAncestor('tagId', 'ancestorId')
             ,   (req, res, next) ->
                     req.ancestor (tag) ->
