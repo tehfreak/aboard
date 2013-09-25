@@ -91,143 +91,104 @@ module.exports= (App, Entry, EntryTag, Tag, TagAncestor, TagDescendant, Thread, 
 
 
 
-        @queryTag: () ->
-            (req, res, next) ->
-                query= req.query
+        @queryTag: () -> (req, res, next) ->
+            req.tags= Tag.query req.query, req.maria
+            req.tags (tags) ->
+                    res.tags= tags
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-                log 'queryTag', query
+        @addTag: () -> (req, res, next) ->
+            req.tag= Tag.create req.body, req.maria
+            req.tag (tag) ->
+                    res.tag= tag
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-                req.tags= Tag.query query, req.maria
-                req.tags (tags) ->
-                        res.tags= tags
-                ,   (err) ->
-                        res.errors.push res.error= err
-
-                do next
-
-        @addTag: () ->
-            (req, res, next) ->
-
-                log 'addTag', req.body
-
-                req.tag= Tag.create req.body, req.maria
-                req.tag (tag) ->
-                        res.tag= tag
-                ,   (err) ->
-                        res.errors.push res.error= err
-
-                do next
-
-        @addTagTags: (param) ->
-            (req, res, next) ->
-                tagId= req.param param
-
-                log 'addTagTags', req.body
-
+        @addTagTags: (param) -> (req, res, next) ->
+            tagId= req.param param
+            ids= []
+            idx= {}
+            for tag in req.body
+                if not idx[tag.id]
+                    idx[tag.id]= tag
+                    ids.push tag.id
+            req.tags= Tag.queryByIds ids, req.maria
+            req.tags (tags) ->
                 ids= []
                 idx= {}
-                for tag in req.body
+                for tag in tags
                     if not idx[tag.id]
                         idx[tag.id]= tag
                         ids.push tag.id
-
-                req.tags= Tag.queryByIds ids, req.maria
-                req.tags (tags) ->
-
-                    ids= []
-                    idx= {}
-                    for tag in tags
+                req.ancestors= TagAncestor.queryByTagIds ids, req.maria
+                req.ancestors (ancestors) ->
+                    for tag in ancestors
                         if not idx[tag.id]
                             idx[tag.id]= tag
                             ids.push tag.id
+                    ancestors= []
+                    for id in ids
+                        ancestors.push idx[id]
+                    req.ancestors= TagAncestor.create tagId, ancestors, req.maria, (err, ancestors) ->
+                        next err
 
-                    req.ancestors= TagAncestor.queryByTagIds ids, req.maria
-                    req.ancestors (ancestors) ->
-                        for tag in ancestors
-                            if not idx[tag.id]
-                                idx[tag.id]= tag
-                                ids.push tag.id
-                        ancestors= []
-                        for id in ids
-                            ancestors.push idx[id]
-                        req.ancestors= TagAncestor.create tagId, ancestors, req.maria, (err, ancestors) ->
-                            next err
+        @delTag: (param) -> (req, res, next) ->
+            tagId= req.param param
+            req.tag= Tag.delete tagId, req.maria
+            req.tag (tag) ->
+                    res.tag= tag
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-        @delTag: (param) ->
-            (req, res, next) ->
-                tagId= req.param param
+        @delTagAncestor: (paramTag, paramAncestor) -> (req, res, next) ->
+            tagId= req.param paramTag
+            ancestorId= req.param paramAncestor
+            req.ancestor= TagAncestor.delete tagId, ancestorId, req.maria
+            req.ancestor (tag) ->
+                    res.ancestor= tag
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-                log 'delTag', tagId
+        @getTagById: (param) -> (req, res, next) ->
+            tagId= req.param param
+            req.tag= Tag.getById tagId, req.maria
+            req.tag (tag) ->
+                    res.tag= tag
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
-                req.tag= Tag.delete tagId, req.maria
-                req.tag (tag) ->
-                        res.tag= tag
-                ,   (err) ->
-                        res.errors.push res.error= err
-
-                do next
-
-        @delTagAncestor: (paramTag, paramAncestor) ->
-            (req, res, next) ->
-                tagId= req.param paramTag
-                ancestorId= req.param paramAncestor
-
-                log 'delTagAncestor', tagId, ancestorId
-
-                req.ancestor= TagAncestor.delete tagId, ancestorId, req.maria
-                req.ancestor (tag) ->
-                        res.ancestor= tag
-                ,   (err) ->
-                        res.errors.push res.error= err
-
-                do next
-
-        @getTagById: (param) ->
-            (req, res, next) ->
-                tagId= req.param param
-
-                log 'getTagById', tagId
-
-                req.tag= Tag.getById tagId, req.maria
-                req.tag (tag) ->
-                        res.tag= tag
-                ,   (err) ->
-                        res.errors.push res.error= err
-
-                do next
-
-        @getTagByName: (param) ->
-            (req, res, next) ->
-                tagName= req.param param
-
-                log 'getTagByName', tagName
-
-                req.tag= Tag.getByName tagName, req.maria
-                req.tag (tag) ->
-                        res.tag= tag
-                ,   (err) ->
-                        res.errors.push res.error= err
-
-                do next
+        @getTagByName: (param) -> (req, res, next) ->
+            tagName= req.param param
+            req.tag= Tag.getByName tagName, req.maria
+            req.tag (tag) ->
+                    res.tag= tag
+            ,   (err) ->
+                    res.errors.push res.error= err
+            do next
 
         @getTagDescendants: () -> (req, res, next) ->
-                req.tag (tag) ->
-                        log 'query Tag Descendants'
-                        req.tag.descendants= TagDescendant.queryByTag tag, req.maria
-                        req.tag.descendants (tags) ->
-                                tag.descendants= tags
-                        ,   (err) ->
-                                res.errors.push res.error= err
-                do next
+            req.tag (tag) ->
+                    req.tag.descendants= TagDescendant.queryByTag tag, req.maria
+                    req.tag.descendants (tags) ->
+                            tag.descendants= tags
+                    ,   (err) ->
+                            res.errors.push res.error= err
+            do next
 
         @getTagEntries: () -> (req, res, next) ->
-                req.tag (tag) ->
-                        req.tag.entries= Entry.queryByTag tag, req.maria
-                        req.tag.entries (entries) ->
-                                tag.entries= entries
-                        ,   (err) ->
-                                res.errors.push res.error= err
-                do next
+            req.tag (tag) ->
+                    req.tag.entries= Entry.queryByTag tag, req.maria
+                    req.tag.entries (entries) ->
+                            tag.entries= entries
+                    ,   (err) ->
+                            res.errors.push res.error= err
+            do next
 
 
 
