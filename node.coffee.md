@@ -239,6 +239,20 @@
                             next err
 
  
+## [DELETE /tags/:tag]()
+Удаляет указанный тег.
+
+            app.delete '/tags/:tagId(\\d+)'
+            ,   AboardApiV1.delTag('tagId')
+            ,   (req, res, next) ->
+                    req.tag (tag) ->
+                            log 'deleted tag resolved', tag
+                            res.json 200, tag
+                    ,   (err) ->
+                            log 'deleted tag rejected', err
+                            next err
+
+ 
 ## [GET /tags/:tag]()
 Отдает тег по идентификатору.
 

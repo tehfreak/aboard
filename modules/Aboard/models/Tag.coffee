@@ -121,6 +121,35 @@ module.exports= (Entry, log) -> class Tag
 
 
 
+    @delete: (id, db, done) ->
+        dfd= do deferred
+
+        db.query "
+            DELETE
+              FROM
+                ??
+             WHERE
+                id= ?
+            "
+        ,   [@table, id]
+        ,   (err, res) =>
+
+                if not err
+                    if res.affectedRows == 1
+                        dfd.resolve id
+                    else
+                        dfd.reject new Error 'cannot delete tag'
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, id
+
+        dfd.promise
+
+
+
     @getById: (id, db, done) ->
         tag= null
         dfd= do deferred
