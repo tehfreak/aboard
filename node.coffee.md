@@ -252,6 +252,19 @@
                             log 'deleted tag rejected', err
                             next err
 
+## [DELETE /tags/:tag/tags/:ancestorId]()
+Удаляет связь указанного предка с указанным тегом.
+
+            app.delete '/tags/:tagId(\\d+)/tags/:ancestorId(\\d+)'
+            ,   AboardApiV1.delTagAncestor('tagId', 'ancestorId')
+            ,   (req, res, next) ->
+                    req.ancestor (tag) ->
+                            log 'deleted tag ancestor resolved', tag
+                            res.json 200, tag
+                    ,   (err) ->
+                            log 'deleted tag rejected', err
+                            next err
+
  
 ## [GET /tags/:tag]()
 Отдает тег по идентификатору.

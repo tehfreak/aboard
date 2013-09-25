@@ -91,3 +91,46 @@ module.exports= (Tag, log) -> class TagAncestor extends Tag
                         done err, ancestors
 
         dfd.promise
+
+
+
+    @delete: (tagId, ancestorId, db, done) ->
+        dfd= do deferred
+
+        err= null
+        if not tagId
+            err= Error 'tagId cannot be null'
+        if not ancestorId
+            err= Error 'ancestorId cannot be null'
+
+        if done and err
+            return process.nextTick ->
+                done err, false
+
+        dfd.reject err if err
+
+        db.query "
+            DELETE
+              FROM
+                ??
+             WHERE
+                tagId= ?
+               AND
+                parentId= ?
+            "
+        ,   [@table, tagId, ancestorId]
+        ,   (err, res) =>
+
+                if not err
+                    if res.affectedRows == 1
+                        dfd.resolve true
+                    else
+                        dfd.reject err
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, true
+
+        dfd.promise

@@ -167,6 +167,21 @@ module.exports= (App, Entry, EntryTag, Tag, TagAncestor, TagDescendant, Thread, 
 
                 do next
 
+        @delTagAncestor: (paramTag, paramAncestor) ->
+            (req, res, next) ->
+                tagId= req.param paramTag
+                ancestorId= req.param paramAncestor
+
+                log 'delTagAncestor', tagId, ancestorId
+
+                req.ancestor= TagAncestor.delete tagId, ancestorId, req.maria
+                req.ancestor (tag) ->
+                        res.ancestor= tag
+                ,   (err) ->
+                        res.errors.push res.error= err
+
+                do next
+
         @getTagById: (param) ->
             (req, res, next) ->
                 tagId= req.param param
