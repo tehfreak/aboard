@@ -415,7 +415,7 @@
 Aутентифицирует пользователя.
 
             app.post '/api/v1/user/auth'
-            ,   auth.authenticate('local')
+            ,   AwesomeApiV1.authUser()
             ,   (req, res, next) ->
                     res.json req.account
 
