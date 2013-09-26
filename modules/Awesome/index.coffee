@@ -9,6 +9,11 @@ module.exports= class Awesome extends Module
         @factory 'AwesomeApiV1', require './handlers/Api/V1'
 
 
+        # Модель разрешения
+
+        @factory 'Permission', require './models/Permission'
+
+
         # Модель учетной записи
 
         @factory 'Account', require './models/Account'
@@ -22,6 +27,10 @@ module.exports= class Awesome extends Module
         # Модель пользователя
 
         @factory 'User', require './models/User'
+
+        # Модель разрешения пользователя
+
+        @factory 'UserPermission', require './models/User/Permission'
 
 
         # Сервис авторизации

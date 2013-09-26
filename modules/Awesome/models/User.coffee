@@ -1,9 +1,10 @@
 deferred= require 'deferred'
 
-module.exports= (Account, log) -> class User
+module.exports= (Account, Permission, log) -> class User
     @table= 'user'
 
     @Account= Account
+    @Permission= Permission
 
 
 

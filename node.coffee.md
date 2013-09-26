@@ -109,16 +109,35 @@
  
 ##### Обработчик маршрутов Aboard API
 
-    injector.invoke (app, log) ->
+    injector.invoke (app, config, log) ->
 
 Создает и монтирует субприложение:
 
-        app.use '/api/v1', injector.invoke (AboardApiV1) ->
+        app.use '/api/v1', injector.invoke (AboardApiV1, AwesomeApiV1, auth, session) ->
             app= new AboardApiV1
+
+Регистрирует парсер печенек:
+
+            app.use do AboardApiV1.cookieParser
 
 Регистрирует парсер тела запроса:
 
             app.use do AboardApiV1.bodyParser
+
+Регистрирует обработчик сессий:
+
+            app.use session.init
+                secret: config.session.secret
+
+Регистрирует обработчики аутентификации:
+
+            app.use do auth.init
+            app.use do auth.sess
+
+Регистрирует обработчики авторизации:
+
+            app.use do AwesomeApiV1.loadUser
+            app.use do AwesomeApiV1.loadUserPermission
 
 Объявляет обработчики субприложения:
 
@@ -375,23 +394,12 @@
  
 ##### Обработчик маршрутов Awesome API
 
-    injector.invoke (app, access, auth, log) ->
+    injector.invoke (app, access, log) ->
 
 Создает и монтирует субприложение:
 
-        app.use '/', injector.invoke (AwesomeApiV1, session) ->
+        app.use '/', injector.invoke (AwesomeApiV1) ->
             app= new AwesomeApiV1
-
-            app.use AwesomeApiV1.cookieParser()
-
-            app.use AwesomeApiV1.bodyParser()
-
-            app.use session.init
-                secret: 'awesome'
-
-            app.use auth.init()
-            app.use auth.sess()
-
 
 Объявляет обработчики субприложения:
 

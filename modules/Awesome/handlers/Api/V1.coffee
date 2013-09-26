@@ -1,4 +1,4 @@
-module.exports= (App, Account, AccountGithub, User, auth, log) ->
+module.exports= (App, Account, AccountGithub, User, UserPermission, auth, log) ->
     class AwesomeApiV1 extends App
 
 
@@ -13,6 +13,18 @@ module.exports= (App, Account, AccountGithub, User, auth, log) ->
                     res.errors.push res.error= err
 
             do next
+
+
+
+        @loadUserPermission: () -> (req, res, next) ->
+            user= req.user= req.account
+
+            req.user.permissions= UserPermission.query user, req.maria
+            req.user.permissions (permissions) ->
+                    req.user.permissions= permissions
+                    next()
+            ,   (err) ->
+                    next(err)
 
 
 

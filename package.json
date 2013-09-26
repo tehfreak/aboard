@@ -14,6 +14,9 @@
         "host": "localhost", "port": 6379
       }
     },
+    "session": {
+      "secret": "awesome"
+    },
     "auth": {
       "github": {
         "clientID": "8356143f06e12555a13e",
