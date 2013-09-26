@@ -419,6 +419,36 @@
                             next err
 
  
+## [PATCH /api/v1/user]()
+Обновляет данные аутентифицированного пользователя.
+
+            app.patch '/api/v1/user'
+            ,   access('user')
+            ,   AwesomeApiV1.updateUser()
+            ,   (req, res, next) ->
+                    req.user (user) ->
+                            log 'updated user resolved', user
+                            res.json user
+                    ,   (err) ->
+                            log 'updated user rejected', err
+                            next err
+
+ 
+## [PATCH /api/v1/user/account]()
+Обновляет данные учетной записи аутентифицированного пользователя.
+
+            app.patch '/api/v1/user/account'
+            ,   access('user')
+            ,   AwesomeApiV1.updateAccount()
+            ,   (req, res, next) ->
+                    req.account (account) ->
+                            log 'updated user account resolved', account
+                            res.json account
+                    ,   (err) ->
+                            log 'updated user account rejected', err
+                            next err
+
+ 
 ## [POST /api/v1/user/auth]()
 Aутентифицирует пользователя.
 

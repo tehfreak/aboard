@@ -67,3 +67,29 @@ module.exports= (App, Account, AccountGithub, User, UserPermission, auth, log) -
                         res.errors.push res.error= err
 
                 do next
+
+
+
+        @updateUser: () -> (req, res, next) ->
+            userId= req.account.userId
+
+            req.user= User.update userId, req.body, req.maria
+            req.user (user) ->
+                    res.user= user
+            ,   (err) ->
+                    res.errors.push res.error= err
+
+            do next
+
+
+
+        @updateAccount: () -> (req, res, next) ->
+            accountId= req.account.id
+
+            req.account= Account.update accountId, req.body, req.maria
+            req.account (account) ->
+                    res.account= account
+            ,   (err) ->
+                    res.errors.push res.error= err
+
+            do next
