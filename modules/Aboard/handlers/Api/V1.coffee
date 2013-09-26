@@ -156,7 +156,10 @@ module.exports= (App, Entry, EntryTag, Tag, TagAncestor, TagDescendant, Thread, 
 
         @getTagById: (param) -> (req, res, next) ->
             tagId= req.param param
-            req.tag= Tag.getById tagId, req.maria
+            permissions= []
+            for permission in req.user.permissions
+                permissions.push permission.id
+            req.tag= Tag.getByIdAndPermissions tagId, permissions, req.maria
             req.tag (tag) ->
                     res.tag= tag
             ,   (err) ->
@@ -165,7 +168,10 @@ module.exports= (App, Entry, EntryTag, Tag, TagAncestor, TagDescendant, Thread, 
 
         @getTagByName: (param) -> (req, res, next) ->
             tagName= req.param param
-            req.tag= Tag.getByName tagName, req.maria
+            permissions= []
+            for permission in req.user.permissions
+                permissions.push permission.id
+            req.tag= Tag.getByNameAndPermissions tagName, permissions, req.maria
             req.tag (tag) ->
                     res.tag= tag
             ,   (err) ->

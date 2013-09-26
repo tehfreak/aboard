@@ -1,9 +1,10 @@
 deferred= require 'deferred'
 
-module.exports= (Entry, log) -> class Tag
+module.exports= (Entry, TagPermission, log) -> class Tag
     @table: 'tag'
 
     @Entry= Entry
+    @Permission= TagPermission
 
 
 
@@ -209,6 +210,96 @@ module.exports= (Entry, log) -> class Tag
                 Tag.name= ?
             "
         ,   [@table, name]
+        ,   (err, rows) =>
+
+                if not err
+                    if rows.length
+                        tag= new @ rows.shift()
+                    dfd.resolve tag
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, tag
+
+        dfd.promise
+
+
+
+    @getByIdAndPermissions: (id, permissions, db, done) ->
+        tag= null
+        dfd= do deferred
+
+        err= null
+        if not id
+            dfd.reject err= Error 'id of tag is not be null'
+        if not permissions.length
+            dfd.reject err= Error 'permissions cannot be empty'
+
+        if done and err
+            return process.nextTick ->
+                done err, tag
+
+        db.query "
+            SELECT
+                Tag.*
+              FROM
+                ?? as Tag
+              JOIN
+                ?? as TagPermission
+                ON TagPermission.tagId= Tag.id
+                    AND TagPermission.permissionId IN(?)
+                    AND TagPermission.value= 1
+             WHERE
+                Tag.id= ?
+            "
+        ,   [@table, @Permission.table, permissions, id]
+        ,   (err, rows) =>
+
+                if not err
+                    if rows.length
+                        tag= new @ rows.shift()
+                    dfd.resolve tag
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, tag
+
+        dfd.promise
+
+
+
+    @getByNameAndPermissions: (name, permissions, db, done) ->
+        tag= null
+        dfd= do deferred
+
+        err= null
+        if not name
+            dfd.reject err= Error 'name of tag is not be null'
+        if not permissions.length
+            dfd.reject err= Error 'permissions cannot be empty'
+
+        if done and err
+            return process.nextTick ->
+                done err, tag
+
+        db.query "
+            SELECT
+                Tag.*
+              FROM
+                ?? as Tag
+              JOIN
+                ?? as TagPermission
+                ON TagPermission.tagId= Tag.id
+                    AND TagPermission.permissionId IN(?)
+                    AND TagPermission.value= 1
+             WHERE
+                Tag.name= ?
+            "
+        ,   [@table, @Permission.table, permissions, name]
         ,   (err, rows) =>
 
                 if not err
