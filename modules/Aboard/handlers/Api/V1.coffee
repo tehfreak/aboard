@@ -182,9 +182,11 @@ module.exports= (App, Entry, EntryTag, Tag, TagAncestor, TagDescendant, Thread, 
             do next
 
         @getTagEntries: () -> (req, res, next) ->
-            roles= ['view.anonymous', 'view']
+            permissions= []
+            for permission in req.user.permissions
+                permissions.push permission.id
             req.tag (tag) ->
-                    req.tag.entries= Entry.queryByTagAndPermissionRoles tag, roles, req.maria
+                    req.tag.entries= Entry.queryByTagAndPermissions tag, permissions, req.maria
                     req.tag.entries (entries) ->
                             tag.entries= entries
                     ,   (err) ->

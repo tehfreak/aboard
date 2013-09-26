@@ -85,7 +85,7 @@ module.exports= (EntryTag, EntryPermission, log) -> class Entry
 
 
 
-    @queryByTagAndPermissionRoles: (tag, roles, db, done) ->
+    @queryByTagAndPermissions: (tag, permissions, db, done) ->
         entries= null
 
         tagId= tag.id
@@ -107,17 +107,20 @@ module.exports= (EntryTag, EntryPermission, log) -> class Entry
                 ?? as EntryTag
               JOIN
                 ?? as EntryPermission
-                ON EntryPermission.id= EntryTag.entryId
-                   AND EntryPermission.role IN(?)
+                ON EntryPermission.entryId= EntryTag.entryId
+                    AND EntryPermission.permissionId IN(?)
+                    AND EntryPermission.value= 1
               JOIN
                 ?? as Entry
                 ON Entry.id= EntryTag.entryId
              WHERE
                 EntryTag.tagId= ?
+             GROUP BY
+                Entry.id
              ORDER BY
                 Entry.updatedAt DESC
             "
-        ,   [@Tag.table, @Permission.table, roles, @table, tag.id]
+        ,   [@Tag.table, @Permission.table, permissions, @table, tag.id]
         ,   (err, rows) =>
 
                 if not err
@@ -125,6 +128,8 @@ module.exports= (EntryTag, EntryPermission, log) -> class Entry
                     for row in rows
                         entries.push new @ row
                     dfd.resolve entries
+
+        dfd.promise
 
 
 
