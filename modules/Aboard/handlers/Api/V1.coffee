@@ -179,10 +179,13 @@ module.exports= (App, Entry, EntryTag, Tag, TagAncestor, TagDescendant, Thread, 
             do next
 
         @getTagDescendants: () -> (req, res, next) ->
+            permissions= []
+            for permission in req.user.permissions
+                permissions.push permission.id
             req.tag (tag) ->
-                    req.tag.descendants= TagDescendant.queryByTag tag, req.maria
-                    req.tag.descendants (tags) ->
-                            tag.descendants= tags
+                    req.tag.descendants= TagDescendant.queryByTagAndPermissions tag, permissions, req.maria
+                    req.tag.descendants (descendants) ->
+                            tag.descendants= descendants
                     ,   (err) ->
                             res.errors.push res.error= err
             do next
