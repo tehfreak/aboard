@@ -53,6 +53,48 @@ module.exports= (Entry, TagPermission, log) -> class Tag
 
 
 
+    @queryByPermissions: (query, permissions, db, done) ->
+        tags= null
+        dfd= do deferred
+
+        err= null
+        if not permissions.length
+            dfd.reject err= Error 'permissions cannot be empty'
+
+        if done and err
+            return process.nextTick ->
+                done err, tags
+
+        db.query "
+            SELECT
+                Tag.*
+              FROM
+                ?? as Tag
+              JOIN
+                ?? as TagPermission
+                ON TagPermission.tagId= Tag.id
+                    AND TagPermission.permissionId IN(?)
+                    AND TagPermission.value= 1
+            "
+        ,   [@table, @Permission.table, permissions]
+        ,   (err, rows) =>
+
+                if not err
+                    tags= []
+                    for row in rows
+                        tags.push new @ row
+                    dfd.resolve tags
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, tags
+
+        dfd.promise
+
+
+
     @queryByIds: (ids, db, done) ->
         tags= null
         dfd= do deferred

@@ -92,7 +92,10 @@ module.exports= (App, Entry, EntryTag, Tag, TagAncestor, TagDescendant, Thread, 
 
 
         @queryTag: () -> (req, res, next) ->
-            req.tags= Tag.query req.query, req.maria
+            permissions= []
+            for permission in req.user.permissions
+                permissions.push permission.id
+            req.tags= Tag.queryByPermissions req.query, permissions, req.maria
             req.tags (tags) ->
                     res.tags= tags
             ,   (err) ->
