@@ -5,26 +5,30 @@ module.exports= (App, Account, AccountGithub, User, UserPermission, auth, log) -
 
         @loadUser: () -> (req, res, next) ->
             account= req.account
-
-            req.user= User.getById account.userId, req.maria
+            if not req.isAuthenticated()
+                req.user= User.getByName 'anonymous', req.maria
+            else
+                req.user= User.getById account.userId, req.maria
             req.user (user) ->
                     res.user= user
+                    next()
             ,   (err) ->
                     res.errors.push res.error= err
-
-            do next
+                    next(err)
 
 
 
         @loadUserPermission: () -> (req, res, next) ->
-            user= req.user= req.account
+            req.user (user) ->
+                log 'load user permissions', user
 
-            req.user.permissions= UserPermission.query user, req.maria
-            req.user.permissions (permissions) ->
-                    req.user.permissions= permissions
-                    next()
-            ,   (err) ->
-                    next(err)
+                req.user.permissions= UserPermission.query user, req.maria
+                req.user.permissions (permissions) ->
+                        res.user.permissions= permissions
+                        next()
+                ,   (err) ->
+                        res.errors.push res.error= err
+                        next(err)
 
 
 
