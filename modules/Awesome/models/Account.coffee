@@ -29,11 +29,15 @@ module.exports= (log) -> class Account
 
         err= null
         if not account
-            dfd.reject err= Error 'account is not be null'
+            err= Error 'account cannot be null'
+        if not account.name or not account.pass
+            err= Error 'account credentials cannot be null'
 
-        if done and err
-            return process.nextTick ->
-                done err, account
+        if err
+            if done
+                process.nextTick ->
+                    done err, account
+            return dfd.reject err
 
         db.query "
             SELECT

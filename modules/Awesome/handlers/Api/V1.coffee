@@ -34,14 +34,15 @@ module.exports= (App, Account, AccountGithub, User, UserPermission, auth, log) -
 
         @authUser: () -> (req, res, next) ->
             handler= auth.authenticate 'local', (err, account) ->
+                if not account
+                    return res.json 400, account
                 account= Account.auth account, req.maria
                 account (account) ->
                     if not account
-                        res.json 400, account
-                    else
-                        req.login account, (err) ->
-                            next err
-            handler req, res, next
+                        return res.json 400, account
+                    req.login account, (err) ->
+                        return next err
+            return handler req, res, next
 
 
 
