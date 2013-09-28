@@ -114,5 +114,5 @@ module.exports= (grunt) ->
 
     grunt.loadNpmTasks 'grunt-contrib-watch'
 
-    grunt.registerTask 'default', ['clean', 'copy:views', 'jade']
+    grunt.registerTask 'default', ['clean', 'copy:views', 'jade', 'less']
     grunt.registerTask 'dev', ['default', 'watch']
