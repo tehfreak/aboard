@@ -22,6 +22,16 @@ module.exports= (grunt) ->
                     dest: '<%= pkg.build.views.app.assets.cwd %>/scripts'
                 }, {
                     expand: true
+                    cwd: '<%= pkg.build.views.src.assets.cwd %>/bower_components/ui/font'
+                    src: ['**/*', '!**/*.json', '!**/*.md']
+                    dest: '<%= pkg.build.views.app.assets.cwd %>/font'
+                }, {
+                    expand: true
+                    cwd: '<%= pkg.build.views.src.assets.cwd %>/bower_components/ui/i'
+                    src: ['**/*', '!**/*.json', '!**/*.md']
+                    dest: '<%= pkg.build.views.app.assets.cwd %>/i'
+                }, {
+                    expand: true
                     cwd: '<%= pkg.build.viewsAboard.src.assets.cwd %>'
                     src: ['**/*', '!**/bower_components/**','!**/bower.json', '!**/*.less', '!**/*.jade', '!**/*.coffee', '!**/*.md']
                     dest: '<%= pkg.build.viewsAboard.app.assets.cwd %>'
