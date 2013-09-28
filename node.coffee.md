@@ -72,17 +72,6 @@
         app.use '/', App.static "./views/assets"
         app.use '/', App.static "./views/templates"
 
-Ресурсы модулей
-
-        app.use '/', App.static "./modules/Aboard/views/assets"
-        app.use '/', App.static "./modules/Aboard/views/templates"
-
-        app.enable 'strict routing'
-
-        app.get '/awesome', (req, res) -> res.redirect '/awesome/'
-        app.use '/awesome/', App.static "./modules/Awesome/views/assets"
-        app.use '/awesome/', App.static "./modules/Awesome/views/templates"
-
 ##### Обработчик подключения к базе данных
 
     injector.invoke (app, db, log) ->
@@ -109,30 +98,30 @@
  
 ##### Обработчик маршрутов Aboard API
 
-    injector.invoke (app, config, log) ->
-
-Создает и монтирует субприложение:
-
-        app.use '/api/v1', injector.invoke (AboardApiV1, AwesomeApiV1, auth, session) ->
-            app= new AboardApiV1
+    injector.invoke (app, App, config, auth, session, log) ->
 
 Регистрирует парсер печенек:
 
-            app.use do AboardApiV1.cookieParser
+        app.use do App.cookieParser
 
 Регистрирует парсер тела запроса:
 
-            app.use do AboardApiV1.bodyParser
+        app.use do App.bodyParser
 
 Регистрирует обработчик сессий:
 
-            app.use session.init
-                secret: config.session.secret
+        app.use session.init
+            secret: config.session.secret
 
 Регистрирует обработчики аутентификации:
 
-            app.use do auth.init
-            app.use do auth.sess
+        app.use do auth.init
+        app.use do auth.sess
+
+Создает и монтирует субприложение:
+
+        app.use '/api/v1', injector.invoke (AboardApiV1, AwesomeApiV1) ->
+            app= new AboardApiV1
 
 Регистрирует обработчики авторизации:
 
@@ -386,6 +375,10 @@
                             log 'thread rejected', err
                             next err
  
+Регистрирует обработчик ошибок:
+
+            #app.use AboardApiV1.handleError()
+            app.use AboardApiV1.errorHandler()
 
 Возвращает субприложение для монтирования к родителю:
 
@@ -409,7 +402,6 @@
 
             app.get '/api/v1/user'
             ,   access('user')
-            ,   AwesomeApiV1.loadUser()
             ,   (req, res, next) ->
                     req.user (user) ->
                             log 'user resolved', user
@@ -517,13 +509,31 @@ Aутентифицирует пользователя Гитхаба.
             app
 
  
-##### Главная страница
+##### Ресурсы приложения
 
-    injector.invoke (app) ->
-        fs= require 'fs'
-        app.use (req, res) ->
-            fs.readFile './modules/Aboard/views/templates/index.html', 'utf8', (err, content) ->
-                res.send content
+    injector.invoke (app, App, log) ->
+
+Ресурсы модулей:
+
+        app.enable 'strict routing'
+
+        app.use '/', App.static "./modules/Aboard/views/assets"
+        app.use '/', App.static "./modules/Aboard/views/templates"
+
+        app.get '/auth', (req, res) -> res.redirect '/auth/'
+        app.get '/auth/', (req, res, next) ->
+            if req.isUnauthenticated()
+                return do next
+            res.redirect '/'
+        app.use '/auth/', App.static "./modules/Aboard/views/templates/Welcome"
+
+        app.get '/awesome', (req, res) -> res.redirect '/awesome/'
+        app.use '/awesome/', (req, res, next) ->
+            if req.isAuthenticated()
+                return do next
+            res.redirect '/auth/'
+        app.use '/awesome/', App.static "./modules/Awesome/views/assets"
+        app.use '/awesome/', App.static "./modules/Awesome/views/templates"
 
  
 ##### Обработчик ошибок
