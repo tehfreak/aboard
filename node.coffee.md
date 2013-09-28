@@ -527,6 +527,13 @@ Aутентифицирует пользователя Гитхаба.
             res.redirect '/'
         app.use '/auth/', App.static "./modules/Aboard/views/templates/Welcome"
 
+        app.get '/user', (req, res) -> res.redirect '/user/'
+        app.get '/user/', (req, res, next) ->
+            if req.isAuthenticated()
+                return do next
+            res.redirect '/auth/'
+        app.use '/user/', App.static "./modules/Aboard/views/templates/Personal"
+
         app.get '/awesome', (req, res) -> res.redirect '/awesome/'
         app.use '/awesome/', (req, res, next) ->
             if req.isAuthenticated()

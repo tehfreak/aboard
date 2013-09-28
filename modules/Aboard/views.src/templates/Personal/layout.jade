@@ -1,0 +1,45 @@
+!!! 5
+html(lang='ru', ng-app="aboard.personal", ng-controller="AppCtrl", ng-cloak)
+
+    head: block head
+
+        block head-meta
+            meta(charset='utf-8')
+
+        block head-title
+            title {{app.head.title}}
+
+        block head-styles
+            link(rel='stylesheet', href='/styles/awesome.css')
+            link(rel='stylesheet', href='/styles/aboard.css')
+
+        block head-scripts
+            script(src='/scripts/libs/angular/angular.min.js')
+            script(src='/scripts/libs/angular/angular-resource.min.js')
+            :coffeescript
+                app= angular.module 'aboard.personal', ['ngResource']
+
+                app.factory 'Account', ($resource) ->
+                    $resource '/api/v1/user/auth', {},
+                        auth: {method:'post'}
+
+                app.factory 'User', ($resource) ->
+                    $resource '/api/v1/user', {}
+
+                app.controller 'AppCtrl', ($rootScope, User) ->
+                    $rootScope.app=
+                        head:
+                            title: 'Aboard. Персональные данные'
+                    $rootScope.user= User.get (user) ->
+                        console.info 'User resolved', user
+
+                app.controller 'UserFormCtrl', ($scope, $window, $log, Account) ->
+                    $scope.account= new Account
+                    $scope.auth= (account) ->
+                        Account.auth account, (account) ->
+                                $scope.account.pass= ''
+                                $window.location= './'
+                        ,   (err) ->
+                                $scope.account.pass= ''
+
+    body: block body
