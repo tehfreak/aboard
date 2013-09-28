@@ -42,6 +42,28 @@ module.exports= (grunt) ->
                     dest: '<%= pkg.build.viewsAwesome.app.assets.cwd %>'
                 }]
 
+        coffee:
+            compile:
+                files: [{
+                    expand: true
+                    cwd: '<%= pkg.build.views.src.assets.cwd %>/scripts'
+                    src: ['**/*.coffee']
+                    dest: '<%= pkg.build.views.app.assets.cwd %>/scripts'
+                    ext: '.js'
+                }, {
+                    expand: true
+                    cwd: '<%= pkg.build.viewsAboard.src.assets.cwd %>/scripts'
+                    src: ['**/*.coffee']
+                    dest: '<%= pkg.build.viewsAboard.app.assets.cwd %>/scripts'
+                    ext: '.js'
+                }, {
+                    expand: true
+                    cwd: '<%= pkg.build.viewsAwesome.src.assets.cwd %>/scripts'
+                    src: ['**/*.coffee']
+                    dest: '<%= pkg.build.viewsAwesome.app.assets.cwd %>/scripts'
+                    ext: '.js'
+                }]
+
         jade:
             views:
                 options:
@@ -109,10 +131,11 @@ module.exports= (grunt) ->
 
     grunt.loadNpmTasks 'grunt-contrib-clean'
     grunt.loadNpmTasks 'grunt-contrib-copy'
+    grunt.loadNpmTasks 'grunt-contrib-coffee'
     grunt.loadNpmTasks 'grunt-contrib-jade'
     grunt.loadNpmTasks 'grunt-contrib-less'
 
     grunt.loadNpmTasks 'grunt-contrib-watch'
 
-    grunt.registerTask 'default', ['clean', 'copy:views', 'jade', 'less']
+    grunt.registerTask 'default', ['clean', 'copy:views', 'coffee', 'jade', 'less']
     grunt.registerTask 'dev', ['default', 'watch']
