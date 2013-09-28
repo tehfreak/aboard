@@ -1,0 +1,25 @@
+extends layout
+
+block body
+    h1 Контрольно-пропускной пункт
+
+    form(name="AuthForm", ng-controller="AuthFormCtrl", ng-submit="auth(account)")
+
+
+
+        fieldset
+            legend Вход с паролем
+
+            input(type='text', placeholder='Имя', ng-model="account.name")
+            input(type='password', placeholder='Пароль', ng-model="account.pass")
+
+            button(type='submit', ng-disabled="AuthForm.$invalid") Войти
+
+
+
+        fieldset
+            legend Вход с помощью
+
+            a(href='/auth/google') Google
+            span 
+            a(href='/auth/github') Github
