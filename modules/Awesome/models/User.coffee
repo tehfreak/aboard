@@ -70,6 +70,44 @@ module.exports= (Account, Permission, log) -> class User
 
 
 
+    @getByName: (name, db, done) ->
+        dfd= do deferred
+
+        err= null
+        if not name
+            dfd.reject err= Error 'name is not be null'
+
+        if done and err
+            return process.nextTick ->
+                done err
+
+        db.query "
+            SELECT
+                User.*
+              FROM
+                ?? as User
+             WHERE
+                User.name= ?
+            "
+        ,   [@table, name]
+        ,   (err, rows) =>
+                user= null
+
+                if not err
+                    if rows.length
+                        user= new @ rows.shift()
+                    dfd.resolve user
+                else
+                    dfd.reject err
+
+                if done instanceof Function
+                    process.nextTick ->
+                        done err, user
+
+        dfd.promise
+
+
+
     @update: (id, data, db, done) ->
         dfd= do deferred
 
