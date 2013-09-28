@@ -9,6 +9,10 @@ html(lang='ru', ng-app="aboard", ng-controller="AppCtrl", ng-cloak)
         block head-title
             title {{head.title}}
 
+        block head-styles
+            link(rel='stylesheet', href='/styles/awesome.css')
+            link(rel='stylesheet', href='/styles/aboard.css')
+
         block head-scripts
             script(src='/scripts/libs/angular/angular.min.js')
             script(src='/scripts/libs/angular/angular-resource.min.js')
