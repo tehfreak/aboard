@@ -95,18 +95,17 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
         ,   [@table, @Account.table, @Group.table, @table, @Permission.table, @Permission.Permission.tablePermission, 'user']
         ,   (err, rows) =>
                 if not err
-                    users= []
+                    profiles= []
                     if rows.length
                         for row in rows
-                            log 'ROW', row
-                            users.push new @ row
-                    dfd.resolve users
+                            profiles.push new @ row
+                    dfd.resolve profiles
                 else
                     dfd.reject err
 
                 if done instanceof Function
                     process.nextTick ->
-                        done err, users
+                        done err, profiles
 
         dfd.promise
 
@@ -185,18 +184,18 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
             """
         ,   [@table, @Account.table, @Group.table, @table, @Permission.table, @Permission.Permission.tablePermission, id]
         ,   (err, rows) =>
-                user= null
+                profile= null
 
                 if not err
                     if rows.length
-                        user= new @ rows.shift()
-                    dfd.resolve user
+                        profile= new @ rows.shift()
+                    dfd.resolve profile
                 else
                     dfd.reject err
 
                 if done instanceof Function
                     process.nextTick ->
-                        done err, user
+                        done err, profile
 
         dfd.promise
 
@@ -275,20 +274,20 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
             """
         ,   [@table, @Account.table, @Group.table, @table, @Permission.table, @Permission.Permission.tablePermission, name]
         ,   (err, rows) =>
-                user= null
+                profile= null
 
                 if not err
                     if rows.length
                         row= rows.shift()
                         if row.id
-                            user= new @ row
-                        dfd.resolve user
+                            profile= new @ row
+                        dfd.resolve profile
                 else
                     dfd.reject err
 
                 if done instanceof Function
                     process.nextTick ->
-                        done err, user
+                        done err, profile
 
         dfd.promise
 
