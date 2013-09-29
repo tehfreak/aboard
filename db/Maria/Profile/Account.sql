@@ -1,6 +1,6 @@
 delimiter $$
 
-CREATE TABLE `account` (
+CREATE TABLE `profile_account` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `profileId` int(11) NOT NULL,
   `type` varchar(45) NOT NULL DEFAULT 'local',
