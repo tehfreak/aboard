@@ -77,6 +77,15 @@
     injector.invoke (app, db, log) ->
 
 Каждому запросу к приложению, кроме запросов к статике, полагается
+подключение к редису:
+
+        app.use (req, res, next) ->
+            redis= db.redis
+            log 'redis connection', !!redis
+            req.redis= redis
+            do next
+
+Каждому запросу к приложению, кроме запросов к статике, полагается
 подключение к базе данных. Свободное соединение выбирается из пула соединений:
 
         app.use (req, res, next) ->
@@ -500,7 +509,7 @@ Aутентифицирует пользователя Гитхаба.
 
  
 ## [GET /api/v1/users/:userId]()
-Отдает пользователя по идентификатору.
+Отдает указанного пользователя.
 
             app.get '/api/v1/users/:userId'
             ,   access('users.view')
@@ -510,6 +519,23 @@ Aутентифицирует пользователя Гитхаба.
                             if not user
                                 res.status 404
                             res.json user
+                    ,   (err) ->
+                            log 'user rejected', err
+                            next err
+
+ 
+## [GET /api/v1/users/:userId/sessions]()
+Отдает сессии указанного пользователя.
+
+            app.get '/api/v1/users/:userId/sessions'
+            ,   access('users.view.sessions')
+            ,   AwesomeApiV1.loadProfileSessions('userId')
+            ,   (req, res, next) ->
+                    req.profile.sessions (sessions) ->
+                            log 'profile sessions resolved', sessions
+                            if not sessions
+                                res.status 404
+                            res.json sessions
                     ,   (err) ->
                             log 'user rejected', err
                             next err

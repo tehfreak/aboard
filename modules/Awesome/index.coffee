@@ -21,6 +21,8 @@ module.exports= class Awesome extends Module
         @factory 'ProfileGroup', require './models/ProfileGroup'
         @factory 'ProfilePermission', require './models/ProfilePermission'
 
+        @factory 'ProfileSession', require './models/ProfileSession'
+
 
 
         @factory 'Access', require './services/Access'

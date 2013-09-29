@@ -1,4 +1,4 @@
-module.exports= (App, Account, AccountGithub, Group, Profile, auth, log) ->
+module.exports= (App, Account, AccountGithub, Group, Profile, ProfileSession, auth, log) ->
     class AwesomeApiV1 extends App
 
 
@@ -18,6 +18,20 @@ module.exports= (App, Account, AccountGithub, Group, Profile, auth, log) ->
 
 
 
+        @loadProfileSessions: (param) -> (req, res, next) ->
+            profileId= req.param param
+
+            req.profile= {}
+            req.profile.sessions= ProfileSession.queryMaria profileId, req.query, req.maria
+            req.profile.sessions (sessions) ->
+                    res.sessions= sessions
+                    next()
+            ,   (err) ->
+                    res.errors.push res.error= err
+                    next(err)
+
+
+
         @authUser: () -> (req, res, next) ->
             handler= auth.authenticate 'local', (err, account) ->
                 if not account
@@ -27,7 +41,15 @@ module.exports= (App, Account, AccountGithub, Group, Profile, auth, log) ->
                     if not account
                         return res.json 400, account
                     req.login account, (err) ->
-                        return next err
+                        headers= JSON.stringify
+                            'referer': req.headers['referer']
+                            'user-agent': req.headers['user-agent']
+                            'accept': req.headers['accept']
+                            'accept-encoding': req.headers['accept-encoding']
+                            'accept-language': req.headers['accept-language']
+                        ProfileSession.insertMaria req.account.profileId, req.sessionID, req.ip, headers, req.maria, (err) ->
+                            do req.logout if err
+                            return next err
             return handler req, res, next
 
 
