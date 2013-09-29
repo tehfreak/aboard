@@ -5,7 +5,7 @@ module.exports= (App, Account, AccountGithub, Profile, auth, log) ->
 
         @loadProfile: () -> (req, res, next) ->
             if req.isAuthenticated()
-                profileId= req.account.userId
+                profileId= req.account.profileId
                 req.profile= Profile.getById profileId, req.maria
             else
                 req.profile= Profile.getByName 'anonymous', req.maria
@@ -58,9 +58,9 @@ module.exports= (App, Account, AccountGithub, Profile, auth, log) ->
 
 
         @updateProfile: () -> (req, res, next) ->
-            userId= req.account.userId
+            profileId= req.account.profileId
 
-            req.profile= Profile.update userId, req.body, req.maria
+            req.profile= Profile.update profileId, req.body, req.maria
             req.profile (profile) ->
                     res.profile= profile
             ,   (err) ->

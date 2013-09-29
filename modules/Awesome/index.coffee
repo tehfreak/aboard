@@ -9,35 +9,19 @@ module.exports= class Awesome extends Module
         @factory 'AwesomeApiV1', require './handlers/Api/V1'
 
 
-        # Модель разрешения
-
-        @factory 'Permission', require './models/Permission'
-
-
-        # Модель учетной записи
 
         @factory 'Account', require './models/Account'
-
-
-        # Модель учетной записи гитхаба
-
         @factory 'AccountGithub', require './models/Account/Github'
 
         @factory 'Group', require './models/Group'
+
+        @factory 'Permission', require './models/Permission'
+
         @factory 'Profile', require './models/Profile'
         @factory 'ProfileGroup', require './models/ProfileGroup'
         @factory 'ProfilePermission', require './models/ProfilePermission'
 
-        # Модель пользователя
 
-        @factory 'User', require './models/User'
-
-        # Модель разрешения пользователя
-
-        @factory 'UserPermission', require './models/User/Permission'
-
-
-        # Сервис авторизации
 
         @factory 'Access', require './services/Access'
 
@@ -45,7 +29,6 @@ module.exports= class Awesome extends Module
             new Access
 
 
-        # Сервис аутентификации
 
         @factory 'Auth', require './services/Auth'
 
@@ -53,7 +36,6 @@ module.exports= class Awesome extends Module
             new Auth
 
 
-        # Сервис сессий
 
         @factory 'Session', require './services/Session'
 

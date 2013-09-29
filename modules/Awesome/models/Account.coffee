@@ -2,13 +2,14 @@ deferred= require 'deferred'
 crypto= require 'crypto'
 
 module.exports= (log) -> class Account
-    @table: 'user_account'
+    @table: 'profile_account'
 
 
 
     constructor: (data) ->
+
         @id= data.id
-        @userId= data.userId
+        @profileId= data.profileId
         @name= data.name
         @pass= data.pass
 
