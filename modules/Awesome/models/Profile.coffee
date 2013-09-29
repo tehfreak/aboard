@@ -2,6 +2,8 @@ deferred= require 'deferred'
 
 module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
     @table= 'profile'
+    @tableEmail= 'profile_email'
+    @tablePhone= 'profile_phone'
 
     @Account= Account
     @Group= ProfileGroup
@@ -14,6 +16,9 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
         @id= data.id
         @name= data.name
         @title= data.title
+
+        @emails= data.emails or JSON.parse (data.emailsJson or null)
+        @phones= data.phones or JSON.parse (data.phonesJson or null)
 
         @enabledAt= data.enabledAt
         @updatedAt= data.updatedAt
@@ -33,6 +38,22 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
             SELECT
 
                 Profile.*,
+
+                CONCAT('[', GROUP_CONCAT(DISTINCT CONCAT('{',
+                    '"value":"',ProfileEmail.value,'",',
+                    '"verified":"',IF((ProfileEmail.verifiedAt IS NOT NULL),'true','false'),'"',
+                '}') ORDER BY
+                    (ProfileEmail.verifiedAt IS NOT NULL) DESC,
+                    ProfileEmail.id
+                ),']') as emailsJson,
+
+                CONCAT('[', GROUP_CONCAT(DISTINCT CONCAT('{',
+                    '"value":"',ProfilePhone.value,'",',
+                    '"verified":"',IF((ProfilePhone.verifiedAt IS NOT NULL),'true','false'),'"',
+                '}') ORDER BY
+                    (ProfilePhone.verifiedAt IS NOT NULL) DESC,
+                    ProfilePhone.id
+                ),']') as phonesJson,
 
                 CONCAT('[', GROUP_CONCAT(DISTINCT CONCAT('{',
                     '"id":',Account.id,',',
@@ -67,6 +88,14 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
                 as Profile
 
               LEFT JOIN ??
+                as ProfileEmail
+                ON ProfileEmail.profileId = Profile.id
+
+              LEFT JOIN ??
+                as ProfilePhone
+                ON ProfilePhone.profileId = Profile.id
+
+              LEFT JOIN ??
                 as Account
                 ON Account.profileId = Profile.id
 
@@ -92,7 +121,7 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
              GROUP BY
                 Profile.id
             """
-        ,   [@table, @Account.table, @Group.table, @table, @Permission.table, @Permission.Permission.tablePermission, 'user']
+        ,   [@table, @tableEmail, @tablePhone, @Account.table, @Group.table, @table, @Permission.table, @Permission.Permission.tablePermission, 'user']
         ,   (err, rows) =>
                 if not err
                     profiles= []
@@ -128,6 +157,22 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
                 Profile.*,
 
                 CONCAT('[', GROUP_CONCAT(DISTINCT CONCAT('{',
+                    '"value":"',ProfileEmail.value,'",',
+                    '"verified":"',IF((ProfileEmail.verifiedAt IS NOT NULL),'true','false'),'"',
+                '}') ORDER BY
+                    (ProfileEmail.verifiedAt IS NOT NULL) DESC,
+                    ProfileEmail.id
+                ),']') as emailsJson,
+
+                CONCAT('[', GROUP_CONCAT(DISTINCT CONCAT('{',
+                    '"value":"',ProfilePhone.value,'",',
+                    '"verified":"',IF((ProfilePhone.verifiedAt IS NOT NULL),'true','false'),'"',
+                '}') ORDER BY
+                    (ProfilePhone.verifiedAt IS NOT NULL) DESC,
+                    ProfilePhone.id
+                ),']') as phonesJson,
+
+                CONCAT('[', GROUP_CONCAT(DISTINCT CONCAT('{',
                     '"id":',Account.id,',',
                     '"type":"',Account.type,'"',
                 '}') ORDER BY
@@ -160,6 +205,14 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
                 as Profile
 
               LEFT JOIN ??
+                as ProfileEmail
+                ON ProfileEmail.profileId = Profile.id
+
+              LEFT JOIN ??
+                as ProfilePhone
+                ON ProfilePhone.profileId = Profile.id
+
+              LEFT JOIN ??
                 as Account
                 ON Account.profileId = Profile.id
 
@@ -182,7 +235,7 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
              WHERE
                 Profile.id= ?
             """
-        ,   [@table, @Account.table, @Group.table, @table, @Permission.table, @Permission.Permission.tablePermission, id]
+        ,   [@table, @tableEmail, @tablePhone, @Account.table, @Group.table, @table, @Permission.table, @Permission.Permission.tablePermission, id]
         ,   (err, rows) =>
                 profile= null
 
@@ -218,6 +271,22 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
                 Profile.*,
 
                 CONCAT('[', GROUP_CONCAT(DISTINCT CONCAT('{',
+                    '"value":"',ProfileEmail.value,'",',
+                    '"verified":"',IF((ProfileEmail.verifiedAt IS NOT NULL),'true','false'),'"',
+                '}') ORDER BY
+                    (ProfileEmail.verifiedAt IS NOT NULL) DESC,
+                    ProfileEmail.id
+                ),']') as emailsJson,
+
+                CONCAT('[', GROUP_CONCAT(DISTINCT CONCAT('{',
+                    '"value":"',ProfilePhone.value,'",',
+                    '"verified":"',IF((ProfilePhone.verifiedAt IS NOT NULL),'true','false'),'"',
+                '}') ORDER BY
+                    (ProfilePhone.verifiedAt IS NOT NULL) DESC,
+                    ProfilePhone.id
+                ),']') as phonesJson,
+
+                CONCAT('[', GROUP_CONCAT(DISTINCT CONCAT('{',
                     '"id":',Account.id,',',
                     '"type":"',Account.type,'"',
                 '}') ORDER BY
@@ -250,6 +319,14 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
                 as Profile
 
               LEFT JOIN ??
+                as ProfileEmail
+                ON ProfileEmail.profileId = Profile.id
+
+              LEFT JOIN ??
+                as ProfilePhone
+                ON ProfilePhone.profileId = Profile.id
+
+              LEFT JOIN ??
                 as Account
                 ON Account.profileId = Profile.id
 
@@ -272,7 +349,7 @@ module.exports= (Account, ProfileGroup, ProfilePermission, log) -> class Profile
              WHERE
                 Profile.name= ?
             """
-        ,   [@table, @Account.table, @Group.table, @table, @Permission.table, @Permission.Permission.tablePermission, name]
+        ,   [@table, @tableEmail, @tablePhone, @Account.table, @Group.table, @table, @Permission.table, @Permission.Permission.tablePermission, name]
         ,   (err, rows) =>
                 profile= null
 
