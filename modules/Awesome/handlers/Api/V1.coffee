@@ -1,4 +1,4 @@
-module.exports= (App, Account, AccountGithub, Profile, auth, log) ->
+module.exports= (App, Account, AccountGithub, Group, Profile, auth, log) ->
     class AwesomeApiV1 extends App
 
 
@@ -63,6 +63,19 @@ module.exports= (App, Account, AccountGithub, Profile, auth, log) ->
             req.profile= Profile.update profileId, req.body, req.maria
             req.profile (profile) ->
                     res.profile= profile
+            ,   (err) ->
+                    res.errors.push res.error= err
+
+            do next
+
+
+
+        @queryGroup: () -> (req, res, next) ->
+            query= req.query
+
+            req.groups= Group.query query, req.maria
+            req.groups (groups) ->
+                    res.groups= groups
             ,   (err) ->
                     res.errors.push res.error= err
 

@@ -469,6 +469,21 @@ Aутентифицирует пользователя Гитхаба.
                     res.redirect '/'
 
  
+## [GET /api/v1/groups]()
+Отдает список групп.
+
+            app.get '/api/v1/groups'
+            ,   access('groups.view')
+            ,   AwesomeApiV1.queryGroup()
+            ,   (req, res, next) ->
+                    req.groups (groups) ->
+                            log 'groups resolved', groups
+                            res.json groups
+                    ,   (err) ->
+                            log 'groups rejected', err
+                            next err
+
+ 
 ## [GET /api/v1/users]()
 Отдает список пользователей.
 
