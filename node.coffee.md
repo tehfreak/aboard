@@ -125,8 +125,7 @@
 
 Регистрирует обработчики авторизации:
 
-            app.use do AwesomeApiV1.loadUser
-            app.use do AwesomeApiV1.loadUserPermission
+            app.use do AwesomeApiV1.loadProfile
 
 Объявляет обработчики субприложения:
 
@@ -377,7 +376,6 @@
  
 Регистрирует обработчик ошибок:
 
-            #app.use AboardApiV1.handleError()
             app.use AboardApiV1.errorHandler()
 
 Возвращает субприложение для монтирования к родителю:
@@ -401,13 +399,12 @@
 Отдает аутентифицированного пользователя.
 
             app.get '/api/v1/user'
-            ,   access('user')
             ,   (req, res, next) ->
-                    req.user (user) ->
-                            log 'user resolved', user
-                            res.json user
+                    req.profile (profile) ->
+                            log 'profile resolved', profile
+                            res.json profile
                     ,   (err) ->
-                            log 'user rejected', err
+                            log 'profile rejected', err
                             next err
 
  
@@ -416,11 +413,11 @@
 
             app.patch '/api/v1/user'
             ,   access('user')
-            ,   AwesomeApiV1.updateUser()
+            ,   AwesomeApiV1.updateProfile()
             ,   (req, res, next) ->
-                    req.user (user) ->
-                            log 'updated user resolved', user
-                            res.json user
+                    req.profile (profile) ->
+                            log 'updated profile resolved', profile
+                            res.json profile
                     ,   (err) ->
                             log 'updated user rejected', err
                             next err
@@ -472,27 +469,26 @@ Aутентифицирует пользователя Гитхаба.
                     res.redirect '/'
 
  
-## [POST /api/v1/users]()
+## [GET /api/v1/users]()
 Отдает список пользователей.
 
             app.get '/api/v1/users'
-            ,   access('admin.users')
-            ,   AwesomeApiV1.queryUser()
+            ,   access('users.view')
+            ,   AwesomeApiV1.queryProfile()
             ,   (req, res, next) ->
-                    req.users (users) ->
-                            log 'users resolved', users
-                            res.json users
+                    req.profiles (profiles) ->
+                            log 'profiles resolved', profiles
+                            res.json profiles
                     ,   (err) ->
-                            log 'users rejected', err
+                            log 'profiles rejected', err
                             next err
 
  
-## [POST /api/v1/users/:userId]()
+## [GET /api/v1/users/:userId]()
 Отдает пользователя по идентификатору.
 
             app.get '/api/v1/users/:userId'
-            ,   access('admin.users')
-            ,   AwesomeApiV1.loadUser('userId')
+            ,   access('users.view')
             ,   (req, res, next) ->
                     req.user (user) ->
                             log 'user resolved', user
@@ -527,6 +523,13 @@ Aутентифицирует пользователя Гитхаба.
             res.redirect '/'
         app.use '/auth/', App.static "./modules/Aboard/views/templates/Welcome"
 
+        app.get '/user', (req, res) -> res.redirect '/user/'
+        app.get '/user/', (req, res, next) ->
+            if req.isAuthenticated()
+                return do next
+            res.redirect '/auth/'
+        app.use '/user/', App.static "./modules/Aboard/views/templates/Personal"
+
         app.get '/awesome', (req, res) -> res.redirect '/awesome/'
         app.use '/awesome/', (req, res, next) ->
             if req.isAuthenticated()
@@ -543,10 +546,6 @@ Aутентифицирует пользователя Гитхаба.
     injector.invoke (app, log, Error) ->
         deferred.monitor '7000', (err) ->
             log 'promise error', err
-        #app.use (err, req, res, next) ->
-        #    log 'error', err
-        #    res.status err.status or 500
-        #    res.end 'Error.'
 
 В режиме разработчика объявляет маршрут для симуляции ошибок:
 

@@ -23,6 +23,10 @@ module.exports= class Awesome extends Module
 
         @factory 'AccountGithub', require './models/Account/Github'
 
+        @factory 'Group', require './models/Group'
+        @factory 'Profile', require './models/Profile'
+        @factory 'ProfileGroup', require './models/ProfileGroup'
+        @factory 'ProfilePermission', require './models/ProfilePermission'
 
         # Модель пользователя
 

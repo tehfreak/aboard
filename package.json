@@ -1,5 +1,5 @@
 {
-  "name": "aboard", "version": "0.0.1",
+  "name": "aboard", "version": "0.0.2",
   "repository": "https://github.com/tehfreak/aboard",
 
   "config": {
@@ -8,6 +8,7 @@
         "host": "localhost", "port": 3306,
         "user": "aboard", "password": "passw0rd",
         "database": "aboard",
+        "multipleStatements": true,
         "debug": true
       },
       "redis": {

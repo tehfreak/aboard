@@ -1,34 +1,20 @@
-module.exports= (App, Account, AccountGithub, User, UserPermission, auth, log) ->
+module.exports= (App, Account, AccountGithub, Profile, auth, log) ->
     class AwesomeApiV1 extends App
 
 
 
-        @loadUser: () -> (req, res, next) ->
-            account= req.account
-            if not req.isAuthenticated()
-                req.user= User.getByName 'anonymous', req.maria
+        @loadProfile: () -> (req, res, next) ->
+            if req.isAuthenticated()
+                profileId= req.account.userId
+                req.profile= Profile.getById profileId, req.maria
             else
-                req.user= User.getById account.userId, req.maria
-            req.user (user) ->
-                    res.user= user
+                req.profile= Profile.getByName 'anonymous', req.maria
+            req.profile (profile) ->
+                    res.profile= profile
                     next()
             ,   (err) ->
                     res.errors.push res.error= err
                     next(err)
-
-
-
-        @loadUserPermission: () -> (req, res, next) ->
-            req.user (user) ->
-                log 'load user permissions', user
-
-                req.user.permissions= UserPermission.query user, req.maria
-                req.user.permissions (permissions) ->
-                        res.user.permissions= permissions
-                        next()
-                ,   (err) ->
-                        res.errors.push res.error= err
-                        next(err)
 
 
 
@@ -59,28 +45,24 @@ module.exports= (App, Account, AccountGithub, User, UserPermission, auth, log) -
 
 
 
-        @queryUser: () ->
-            (req, res, next) ->
-                query= req.query
+        @queryProfile: () -> (req, res, next) ->
+            query= req.query
 
-                log 'queryUser', query
+            req.profiles= Profile.query query, req.maria
+            req.profiles (profiles) ->
+                    res.profiles= profiles
+            ,   (err) ->
+                    res.errors.push res.error= err
 
-                req.users= User.query query, null
-                req.users (users) ->
-                        res.users= users
-                ,   (err) ->
-                        res.errors.push res.error= err
-
-                do next
+            do next
 
 
-
-        @updateUser: () -> (req, res, next) ->
+        @updateProfile: () -> (req, res, next) ->
             userId= req.account.userId
 
-            req.user= User.update userId, req.body, req.maria
-            req.user (user) ->
-                    res.user= user
+            req.profile= Profile.update userId, req.body, req.maria
+            req.profile (profile) ->
+                    res.profile= profile
             ,   (err) ->
                     res.errors.push res.error= err
 
