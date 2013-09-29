@@ -72,7 +72,7 @@ module.exports= (grunt) ->
                 files: [{
                     expand: true
                     cwd: '<%= pkg.build.views.src.templates.cwd %>'
-                    src: ['**/*.jade', '!**/layout.jade']
+                    src: ['**/*.jade', '!**/layout.jade', '!mixins/*.*']
                     dest: '<%= pkg.build.views.app.templates.cwd %>'
                     ext: '.html'
                 }]
@@ -83,7 +83,7 @@ module.exports= (grunt) ->
                 files: [{
                     expand: true
                     cwd: '<%= pkg.build.viewsAboard.src.templates.cwd %>'
-                    src: ['**/*.jade', '!**/layout.jade']
+                    src: ['**/*.jade', '!**/layout.jade', '!mixins/*.*']
                     dest: '<%= pkg.build.viewsAboard.app.templates.cwd %>'
                     ext: '.html'
                 }]
@@ -94,7 +94,7 @@ module.exports= (grunt) ->
                 files: [{
                     expand: true
                     cwd: '<%= pkg.build.viewsAwesome.src.templates.cwd %>'
-                    src: ['**/*.jade', '!**/layout.jade']
+                    src: ['**/*.jade', '!**/layout.jade', '!mixins/*.*']
                     dest: '<%= pkg.build.viewsAwesome.app.templates.cwd %>'
                     ext: '.html'
                 }]
