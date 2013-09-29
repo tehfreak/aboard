@@ -1,5 +1,5 @@
 !!! 5
-html(lang='ru', ng-app="aboard", ng-controller="AppCtrl", ng-cloak)
+html(lang='ru', ng-app="app", ng-controller="AppCtrl", ng-cloak)
 
     head: block head
 
@@ -9,16 +9,18 @@ html(lang='ru', ng-app="aboard", ng-controller="AppCtrl", ng-cloak)
         block head-title
             title {{head.title}}
 
+        block head-styles
+            link(rel='stylesheet', href='/styles/awesome.css')
+            link(rel='stylesheet', href='/styles/aboard.css')
+
         block head-scripts
             script(src='/scripts/libs/angular/angular.min.js')
             script(src='/scripts/libs/angular/angular-resource.min.js')
             script(src='/scripts/libs/angular/angular-route.min.js')
+            script(src='/scripts/aboard.js')
             :coffeescript
-                app= angular.module 'aboard', ['ngResource', 'ngRoute'], ($routeProvider, $locationProvider) ->
+                app= angular.module 'app', ['aboard', 'ngRoute'], ($routeProvider, $locationProvider) ->
                     $locationProvider.html5Mode true
-
-                app.factory 'User', ($resource) ->
-                    $resource '/api/v1/user', {}
 
                 app.controller 'AppCtrl', ($rootScope, User) ->
                     $rootScope.user= User.get (user) ->

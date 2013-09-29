@@ -1,5 +1,5 @@
 !!! 5
-html(lang='ru', ng-app="aboard.welcome", ng-cloak)
+html(lang='ru', ng-app="app", ng-controller="AppCtrl", ng-cloak)
 
     head: block head
 
@@ -7,7 +7,7 @@ html(lang='ru', ng-app="aboard.welcome", ng-cloak)
             meta(charset='utf-8')
 
         block head-title
-            title {{head.title}}
+            title {{app.head.title}}
 
         block head-styles
             link(rel='stylesheet', href='/styles/awesome.css')
@@ -16,14 +16,23 @@ html(lang='ru', ng-app="aboard.welcome", ng-cloak)
         block head-scripts
             script(src='/scripts/libs/angular/angular.min.js')
             script(src='/scripts/libs/angular/angular-resource.min.js')
+            script(src='/scripts/libs/angular/angular-route.min.js')
+            script(src='/scripts/aboard.js')
             :coffeescript
-                app= angular.module 'aboard.welcome', ['ngResource']
+                app= angular.module 'app', ['aboard']
 
                 app.factory 'Account', ($resource) ->
                     $resource '/api/v1/user/auth', {},
                         auth: {method:'post'}
 
-                app.controller 'AuthFormCtrl', ($scope, $window, $log, Account) ->
+                app.controller 'AppCtrl', ($rootScope, User) ->
+                    $rootScope.app=
+                        head:
+                            title: 'Aboard. Персональные данные'
+                    $rootScope.user= User.get (user) ->
+                        console.info 'User resolved', user
+
+                app.controller 'UserFormCtrl', ($scope, $window, $log, Account) ->
                     $scope.account= new Account
                     $scope.auth= (account) ->
                         Account.auth account, (account) ->
