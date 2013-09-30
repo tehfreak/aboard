@@ -1,5 +1,7 @@
+include mixins/awesome
+
 !!! 5
-html(lang='ru', ng-app="awesome", ng-controller="AppCtrl", ng-cloak)
+html(lang='ru', ng-app="app", ng-controller="AppCtrl", ng-cloak)
 
     head: block head
 
@@ -7,24 +9,54 @@ html(lang='ru', ng-app="awesome", ng-controller="AppCtrl", ng-cloak)
             meta(charset='utf-8')
 
         block head-title
-            title {{head.title}}
+            title(ng-bind="app.title") Awesome...
+
+        block head-styles
+            link(rel='stylesheet', href='/styles/awesome.css')
 
         block head-scripts
             script(src='/scripts/libs/angular/angular.min.js')
+            script(src='/scripts/libs/angular/angular-animate.min.js')
             script(src='/scripts/libs/angular/angular-resource.min.js')
+            script(src='/scripts/libs/angular/angular-route.min.js')
+            script(src='/scripts/awesome.js')
             :coffeescript
-                app= angular.module 'awesome', ['ngResource']
+                app= angular.module 'app', ['awesome']
 
-                app.factory 'User', ($resource) ->
-                    $resource '/api/v1/user', {}
+    body(ng-controller="ViewCtrl"): block body
+        .b-app
+            .b-app--head
+                h1 Система управления содержимым
+            .b-app--body
+                .b-app--side
+                    nav.b-app--side--nav
+                        ul.nav.nav-list
 
-                app.controller 'AppCtrl', ($rootScope, $log, User) ->
-                    $rootScope.app=
-                        ready: null
-                        error: null
-                    $rootScope.user= User.get (user) ->
-                            $rootScope.app.ready= true
-                    ,   (err) ->
-                            $rootScope.app.error= err
+                            li.active
+                                a(href='./')
+                                    i.icon-desktop
+                                    u Сводка
 
-    body: block body
+                            li
+                                a(href='./users/')
+                                    i.icon-group
+                                    u Пользователи и группы
+                                ul.nav.nav-list
+                                    li: a(href='./users/#/permissions')
+                                        i.icon-file-alta
+                                        u Разрешения
+                            li
+                                a(href='./config/')
+                                    i.icon-gears
+                                    u Конфигурация
+                                ul.nav.nav-list
+                                    li: a(href='./config/#/db')
+                                        i.icon-file-alta
+                                        u База данных
+                                    li: a(href='./config/#/server')
+                                        i.icon-file-alta
+                                        u Сервер
+
+                .b-app--main.container: block main
+
+            .b-app--foot foot
