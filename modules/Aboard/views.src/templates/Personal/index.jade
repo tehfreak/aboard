@@ -1,0 +1,21 @@
+extends layout
+
+mixin form(name, ctrl, onSubmit)
+    form.b-panel(name=name, ng-controller=ctrl, ng-submit=onSubmit): .row
+        if block
+            block
+
+block body
+    .container: .row
+        .col-sm-8
+            h1 Персональные данные
+            +form(name='UserForm', ctrl='UserFormCtrl', onSubmit='save(user)')
+
+                .col-xs-12.col-sm-10.col-sm-offset-1: fieldset
+                    legend Пользователь
+
+                    input(type='text', ng-model='user.name', required)
+                    input(type='text', ng-model='user.title', required)
+
+                    .row: .col-xs-12.col-sm-4.col-sm-offset-8
+                        button.btn-block(type='submit', ng-disabled="UserForm.$invalid") Сохранить

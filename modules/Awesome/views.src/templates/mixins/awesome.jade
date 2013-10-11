@@ -1,0 +1,168 @@
+mixin bViewDialog()
+    .b-dialog(ng-if="view.dialog.overlay", ng-init="dialog=view.dialog")
+        if block
+            block
+        else
+            +bViewDialogArea()
+            +bViewDialogMain()
+
+mixin bViewDialogArea()
+    .b-dialog--area(ng-click="hideViewDialog()")
+
+mixin bViewDialogMain()
+    .b-dialog--main
+        if block
+            block
+
+mixin bViewDialogHead()
+    .b-dialog--head
+        if block
+            block
+
+mixin bViewDialogActs()
+    .b-dialog--acts
+        if block
+            block
+
+mixin bViewDialogActClose()
+    a(ng-click="hideViewDialog()"): i.icon-remove
+
+mixin bViewDialogTabs()
+    .b-dialog--tabs
+        if block
+            block
+
+mixin bViewDialogBody()
+    .b-dialog--body
+        if block
+            block
+
+
+
+mixin bEditDialog()
+    .b-dialog--dialog(ng-if="edit.dialog.overlay", ng-init="dialog=edit.dialog", ng-controller="EditDialogCtrl")
+        if block
+            block
+        else
+            +bEditDialogArea()
+            +bEditDialogMain()
+
+mixin bEditDialogArea()
+    .b-dialog--dialog--area(ng-click="hideEditDialog()")
+
+mixin bEditDialogMain()
+    .b-dialog--dialog--main
+        if block
+            block
+
+mixin bEditDialogHead()
+    .b-dialog--dialog--head.b-dialog--head
+        if block
+            block
+
+mixin bEditDialogActs()
+    .b-dialog--dialog--acts.b-dialog--acts
+        if block
+            block
+
+mixin bEditDialogActClose()
+    a(ng-click="hideEditDialog()"): i.icon-remove
+
+mixin bEditDialogBody()
+    .b-dialog--dialog--body.b-dialog--body
+        if block
+            block
+
+
+
+mixin bNavCalendar()
+    .nav.nav-calendar
+        table.b-app--side--calendar.b-calendar
+            caption: a(href='../events/')
+                i.icon-calendar
+                u События системы
+
+            tbody
+                tr: th(colspan=7): a Сентябрь
+                tr
+                    td: a.empty(href='#') 26
+                    td: a(href='#') 27
+                    td: a(href='#') 28
+                    td: a.empty(href='#') 29
+                    td: a(href='#') 30
+                    td: a(href='#') 31
+                    td: a(href='#') 1
+                tr
+                    td: a(href='#') 2
+                    td: a(href='#') 3
+                    td: a(href='#') 4
+                    td: a(href='#') 5
+                    td: a(href='#') 6
+                    td: a(href='#') 7
+                    td: a(href='#') 8
+
+                tr
+                    td: a(href='#') 9
+                    td: a.empty(href='#') 10
+                    td: a(href='#') 11
+                    td: a.empty(href='#') 12
+                    td: a.empty(href='#') 13
+                    td: a(href='#') 14
+                    td: a(href='#') 15
+                tr
+                    td: a(href='#') 16
+                    td: a.empty(href='#') 17
+                    td: a(href='#') 18
+                    td: a.empty(href='#') 19
+                    td: a(href='#') 20
+                    td: a(href='#') 21
+                    td: a(href='#') 22
+                tr
+                    td: a(href='#') 23
+                    td: a(href='#') 24
+                    td: a(href='#') 25
+                    td: a.empty(href='#') 26
+                    td: a.empty(href='#') 27
+                    td: a(href='#') 28
+                    td: a.empty(href='#') 29
+
+            tbody
+                tr: th(colspan=7): a Октябрь
+                tr
+                    td: a.empty(href='#') 30
+                    td: a(href='#') 1
+                    td: a(href='#') 2
+                    td: a.empty(href='#') 3
+                    td: a.empty(href='#') 4
+                    td: a.empty(href='#') 5
+                    td: a.current(href='#') 6
+                tr
+                    td: a(href='#') 7
+                    td: a(href='#') 8
+                    td: a(href='#') 9
+                    td: a(href='#') 10
+                    td: a(href='#') 11
+                    td: a(href='#') 12
+                    td: a(href='#') 13
+
+                tr
+                    td: a(href='#') 14
+                    td: a.empty(href='#') 15
+                    td: a.empty(href='#') 16
+                    td: a.empty(href='#') 17
+                    td: a.empty(href='#') 18
+                    td: a(href='#') 19
+                    td: a(href='#') 20
+                tr
+                    td: a(href='#') 21
+                    td: a.empty(href='#') 22
+                    td: a.empty(href='#') 23
+                    td: a.empty(href='#') 24
+                    td: a.empty(href='#') 25
+                    td: a(href='#') 26
+                    td: a(href='#') 27
+                tr
+                    td: a(href='#') 28
+                    td: a(href='#') 29
+                    td: a(href='#') 30
+                    td: a.empty(href='#') 31

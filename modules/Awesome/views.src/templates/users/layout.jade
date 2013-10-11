@@ -1,0 +1,63 @@
+extends ../layout
+
+append head-styles
+    link(rel='stylesheet', href='/styles/awesome-users.css')
+
+append head-scripts
+    script(src='/scripts/awesome-users.js')
+    :coffeescript
+        app= angular.module 'app', ['awesome', 'awesome.users'], ($locationProvider, $routeProvider) ->
+            $locationProvider.html5Mode true
+
+            $routeProvider.when '/',
+                controller: 'UsersViewCtrl', template: '/partials/users/'
+
+        app.factory 'GroupModel', ($resource) ->
+            $resource '/api/v1/groups/:id', {}
+
+        app.factory 'UserModel', ($resource) ->
+            $resource '/api/v1/users/:id', {}
+
+        app.factory 'UserSessionModel', ($resource) ->
+            $resource '/api/v1/users/:userId/sessions/:id', {}
+
+        app.controller 'ViewCtrl', ($scope) ->
+            $scope.view=
+                ready: null
+                error: null
+
+            $scope.view.dialog=
+                overlay: null
+
+            $scope.showViewDialog= (type) ->
+                $scope.view.dialog.overlay= type
+            $scope.hideViewDialog= () ->
+                $scope.view.dialog.overlay= null
+
+        app.controller 'UsersCtrl', ($scope, UserModel) ->
+            $scope.users= do UserModel.query
+            $scope.showDetails= (user) ->
+                $scope.view.dialog.user= user
+                $scope.showViewDialog 'user'
+
+        app.controller 'UsersUserDialogCtrl', ($scope, UserModel, UserSessionModel) ->
+            $scope.user.sessions= UserSessionModel.query {userId: $scope.view.dialog.user.id}, (sessions) ->
+                $scope.user.sessions= sessions
+            $scope.edit=
+                draft: null
+            $scope.toggleEdit= () ->
+                console.log 'режим редактирования'
+            $scope.edit.dialog=
+                overlay: null
+            $scope.showEditDialog= (type) ->
+                $scope.edit.dialog.overlay= type
+
+        app.controller 'EditDialogCtrl', ($scope) ->
+            $scope.hideEditDialog= () ->
+                $scope.edit.dialog.overlay= null
+
+        app.controller 'GroupsCtrl', ($scope, GroupModel) ->
+            $scope.groups= do GroupModel.query
+            $scope.showDetails= (group) ->
+                $scope.view.dialog.group= group
+                $scope.showViewDialog 'group'

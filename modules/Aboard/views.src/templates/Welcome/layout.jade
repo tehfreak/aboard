@@ -1,0 +1,35 @@
+!!! 5
+html(lang='ru', ng-app="aboard.welcome", ng-cloak)
+
+    head: block head
+
+        block head-meta
+            meta(charset='utf-8')
+
+        block head-title
+            title {{head.title}}
+
+        block head-styles
+            link(rel='stylesheet', href='/styles/awesome.css')
+            link(rel='stylesheet', href='/styles/aboard.css')
+
+        block head-scripts
+            script(src='/scripts/libs/angular/angular.min.js')
+            script(src='/scripts/libs/angular/angular-resource.min.js')
+            :coffeescript
+                app= angular.module 'aboard.welcome', ['ngResource']
+
+                app.factory 'Account', ($resource) ->
+                    $resource '/api/v1/user/auth', {},
+                        auth: {method:'post'}
+
+                app.controller 'AuthFormCtrl', ($scope, $window, $log, Account) ->
+                    $scope.account= new Account
+                    $scope.auth= (account) ->
+                        Account.auth account, (account) ->
+                                $scope.account.pass= ''
+                                $window.location= './'
+                        ,   (err) ->
+                                $scope.account.pass= ''
+
+    body: block body
