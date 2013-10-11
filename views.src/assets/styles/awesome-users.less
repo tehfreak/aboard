@@ -1,0 +1,109 @@
+table.b-profiles-list {
+    width: 100%;
+    background: transparent;
+    & > thead {
+        & > tr {
+            & > th {
+                color: #999;
+                background: transparent;
+                border-top-color: transparent;
+                &:not(:last-child) {
+                    border-right-color: transparent;
+                }
+            }
+        }
+    }
+    & > tbody {
+        & > tr {
+            & > td {
+                font-size: 11px;
+                background: transparent;
+                &:not(:last-child) {
+                    border-right-color: transparent;
+                }
+            }
+            &:hover {
+                & > td {
+                    background: #fff;
+                }
+            }
+        }
+    }
+}
+
+.b-profiles-list--profile--title {
+    font-size: 17px;
+}
+
+.b-users-user-dialog--display {
+    margin-bottom: 30px;
+}
+.b-users-user-dialog--side {
+    float: left;
+    position: relative;
+    width: 210px;
+    .b-panel {
+        width: 240px; height: 240px;
+        margin: -15px -15px 15px;
+    }
+}
+.b-users-user-dialog--main {
+    position: relative;
+    margin-left: 255px;
+}
+
+.b-users-user--title {
+    margin: 0 0 5px;
+    font-size: 36px; line-height: 36px;
+    font-weight: 400;
+}
+.b-users-user--name-label,
+.b-users-user--name {
+    margin: 0 0 30px;
+    font-size: 14px; line-height: 20px;
+    font-weight: 700;
+}
+.b-users-user--name {
+    font-size: 21px;
+}
+.b-users-user--accounts,
+.b-users-user--account {
+    display: inline-block;
+    vertical-align: baseline;
+}
+.b-users-user--account--type {
+    display: inline-block;
+    margin: 0px 0 4px 5px;
+    line-height: 20px;
+}
+
+.b-users-user--emails,
+.b-users-user--phones,
+.b-users-user--groups,
+.b-users-user--permissions,
+.b-users-user--sessions {
+    display: block;
+    margin-top: 25px;
+    &-label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 11px;
+    }
+}
+.b-users-user--email,
+.b-users-user--phone,
+.b-users-user--group,
+.b-users-user--permission,
+.b-users-user--session {
+    display: inline-block;
+    margin: 0 10px 0 -5px;
+    padding: 5px 5px;
+}
+.b-users-user--permission {
+    & i {
+        display: inline-block;
+        width: 15px;
+        margin-right: -2px;
+        text-align: left;
+    }
+}

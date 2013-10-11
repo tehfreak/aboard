@@ -1,0 +1,200 @@
+extends layout
+
+block body
+    .b-app
+        .b-app--head
+            h1 Система управления содержимым
+        .b-app--body
+            .b-app--side
+                nav.b-app--side--nav
+                    ul.nav.nav-list
+
+                        li(id='dashboard')
+                            a(href='../')
+                                i.icon-desktop
+                                u Сводка
+
+                    ul.nav.nav-list
+                        li.active
+                            a
+                                i.icon-group
+                                u Пользователи и группы
+                            ul.nav.nav-list
+                                li: a(href='#/events')
+                                    i.icon-file-alta
+                                    u События пользователей
+                                li: a(href='#/permissions')
+                                    i.icon-file-alta
+                                    u Разрешения
+                        li
+                            a(href='../tags/')
+                                i.icon-gears
+                                u Конфигурация
+                            ul.nav.nav-list
+                                li: a(href='#/query')
+                                    i.icon-file-alta
+                                    u База данных
+                                li: a(href='#/query')
+                                    i.icon-file-alta
+                                    u Сервер
+
+            .b-app--main.container: .row
+
+                .col-xs-12.col-md-5.col-md-push-7
+                    h3 Группы 
+                        a(ng-click="showDetails(draft)", style='font-weight:400;'): u добавить группу
+                    table.b-table.b-profiles-list(ng-controller="GroupsCtrl")
+                        thead: tr
+                            th: #
+                            th.f Группа
+                        tbody: tr.b-profiles-list--profile(ng-repeat="group in groups", ng-click="showDetails(group)")
+                            td: .b-profiles-list--profile--id {{group.id}}
+                            td.f
+                                a.b-profiles-list--profile--title(href='') {{group.title}}
+                                br
+                                b {{group.name}}
+
+                .col-xs-12.col-md-7.col-md-pull-5(ng-controller="UsersCtrl")
+                    h3 Пользователи 
+                        a(ng-click="showDetails(draft)", style='font-weight:400;'): u добавить пользователя
+                    table.b-table.b-profiles-list
+                        thead: tr
+                            th: #
+                            th.f Пользователь
+                        tbody: tr.b-profiles-list--profile(ng-repeat="user in users", ng-click="showDetails(user)")
+                            td: .b-profiles-list--profile--id {{user.id}}
+                            td.f
+                                a.b-profiles-list--profile--title(href='') {{user.title}}
+                                br
+                                b {{user.name}}   
+                                a.list--item(ng-repeat="group in user.groups", href='') {{group.name}}
+
+        .b-app--foot foot
+
+        +bViewDialog()
+            +bViewDialogArea()
+            +bViewDialogMain()
+
+                .b-users-user-dialog(ng-if="'user'==dialog.overlay", ng-init="user=dialog.user", ng-controller="UsersUserDialogCtrl")
+                    +bViewDialogHead()
+                        i.icon-user
+                        span Информация о пользователе
+                        +bViewDialogActs()
+                            a(ng-click="showEditor()"): u режим редактирования
+                            a(ng-click="showHelp()"): u справка
+                            +bViewDialogActClose()
+                    +bViewDialogTabs()
+                        ul.nav.nav-tabs
+                            li.active: a Информация
+                            li: a Профиль пользователя
+                            li: a Учетные записи
+                    +bViewDialogBody()
+                        .b-users-user
+                            .b-users-user-dialog--side
+                                .b-panel
+                                    img.b-users-user--image(ng-src="/i/users/1.jpg", width='210', height='210')
+                                .b-btn.b-btn-block Деактивировать
+                            .b-users-user-dialog--main
+                                .row
+                                    .col-lg-5
+                                        h1.b-users-user--title {{user.title}}
+                                        h2.b-users-user--name-label.b-label(title="{{user.id}}")
+                                            b.b-users-user--name {{user.name}}
+                                            span.b-users-user--accounts
+                                                span.b-users-user--account(ng-repeat="account in user.accounts")
+                                                    img.b-users-user--account--type(ng-src="/favicon-{{account.type}}.ico", width=16, height=16)
+                                        .b-users-user--emails
+                                            b.b-users-user--emails-label(ng-switch="user.emails.length > 1")
+                                                span(ng-switch-when="true") Электронные адреса:  
+                                                span(ng-switch-when="false") Электронный адрес:  
+                                                a.b-users-user--emails-edit-toggle(ng-click="showEditDialog('emails')"): u.dashed редактировать
+                                            span.b-users-user--emails-list.list
+                                                a.b-users-user--email.list--item(ng-repeat="email in user.emails", href='')
+                                                    span {{email.value}}
+                                        .b-users-user--phones
+                                            b.b-users-user--phones-label(ng-switch="user.phones.length > 1")
+                                                span(ng-switch-when="true") Телефоны:  
+                                                span(ng-switch-when="false") Телефон:  
+                                                a.b-users-user--phones-edit-toggle(ng-click="showEditDialog('phones')"): u.dashed редактировать
+                                            span.b-users-user--phones-list.list
+                                                a.b-users-user--phone.list--item(ng-repeat="phone in user.phones", href='')
+                                                    span {{phone.value}}
+                                    .col-lg-7
+                                        .b-users-user--groups
+                                            b.b-users-user--groups-label Группы:  
+                                                a.b-users-user--groups-edit-toggle(ng-click="showEditDialog('groups')"): u.dashed редактировать
+                                            span.b-users-user--groups-list.list
+                                                a.b-users-user--group.b-label.list--item(ng-repeat="group in user.groups", ng-href="#/groups/{{group.name}}"): u
+                                                    span.b-users-user--group--name {{group.name}}
+                                        .b-users-user--permissions
+                                            b.b-users-user--permissions-label Разрешения:  
+                                                a.b-users-user--permissions-edit-toggle(ng-click="showEditDialog('permissions')"): u.dashed редактировать
+                                            span.b-users-user--permissions-list.list
+                                                a.b-users-user--permission.b-label.list--item(ng-repeat="permission in user.permissions", ng-href="#/permissions/{{permission.name}}"): u
+                                                    i.icon-unlock-alt
+                                                    span.b-users-user--permission--name {{permission.name}}
+                                        .b-users-user--sessions
+                                            b.b-users-user--sessions-label Сессии:  
+                                                a.b-users-user--sessions-edit-toggle(ng-click="showEditDialog('sessions')"): u.dashed редактировать
+                                            span.b-users-user--sessions-list.list
+                                                a.b-users-user--session.b-label.list--item(ng-repeat="session in user.sessions", ng-href="#/sessions/{{session.sessionId}}"): u
+                                                    span.b-users-user--session--name {{session.sessionId}}
+                    +bEditDialog()
+                        +bEditDialogArea()
+                        +bEditDialogMain()
+                            .b-users-user--emails-edit-dialog(ng-if="'emails'==dialog.overlay")
+                                +bEditDialogHead()
+                                    i.icon-edit
+                                    span Электронные адреса
+                                    +bEditDialogActs()
+                                        a(ng-click="showHelp()"): u справка
+                                        +bEditDialogActClose()
+                                +bEditDialogBody()
+                                    .row
+                                        .col-xs-12.col-md-7: form
+                                            label.b-label(ng-repeat="email in user.emails")
+                                                input.b-input(type='text', ng-model="email.value")
+                            .b-users-user--phones-edit-dialog(ng-if="'phones'==dialog.overlay")
+                                +bEditDialogHead()
+                                    i.icon-edit
+                                    span Телефоны
+                                    +bEditDialogActs()
+                                        +bEditDialogActClose()
+                                +bEditDialogBody()
+                                    .row
+                                        .col-xs-12.col-md-7: form
+                                            label.b-label(ng-repeat="phone in user.phones")
+                                                input.b-input(type='text', ng-model="phone.value")
+
+                .b-users-user-dialog(ng-if="'group'==dialog.overlay", ng-init="group=dialog.group")
+                    +bViewDialogHead()
+                        i.icon-user
+                        span Информация о группе пользователей
+                        +bViewDialogActs()
+                            a(ng-click="showEditor()"): u редактировать
+                            +bViewDialogActClose()
+                    +bViewDialogTabs()
+                        ul.nav.nav-tabs
+                            li.active: a Информация
+                            li: a Профиль группы
+                    +bViewDialogBody()
+                        .b-users-user
+                            .b-users-user-dialog--display.row
+                                .col-xs-3.col-md-2.col-lg-1
+                                    img.b-users-user--image(ng-src="https://identicons.github.com/3a86206f843fe3c1f1bd43153bf36fad.png", width='100%')
+                                .col-xs-9.col-md-10.col-lg-11
+                                    h1.b-users-user--title {{group.title}}
+                                    h2.b-users-user--name-label.b-label(title="{{user.id}}")
+                                        b.b-users-user--name {{group.name}}
+                                        span.b-users-user--accounts
+                                            span.b-users-user--account(ng-repeat="account in user.accounts")
+                                                img.b-users-user--account--type(ng-src="/favicon-{{account.type}}.ico", width=16, height=16)
+                            .row
+                                .col-md-5.b-users-user--groups
+                                .col-md-7.b-users-user--permissions
+                                    b.b-users-user--permissions-label Разрешения:
+                                    span.b-users-user--permissions-list.list
+                                        a.b-users-user--permission.b-label.list--item(ng-repeat="permission in user.permissions", ng-href="#/permissions/{{permission.name}}"): u
+                                            i.icon-unlock-alt
+                                            span.b-users-user--permission--name {{permission.name}}
+                                        a.b-users-user--permission.b-users-user--permission-form-toggle.list--item: u.dashed добавить разрешение

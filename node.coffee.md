@@ -72,20 +72,18 @@
         app.use '/', App.static "./views/assets"
         app.use '/', App.static "./views/templates"
 
-Ресурсы модулей
-
-        app.use '/', App.static "./modules/Aboard/views/assets"
-        app.use '/', App.static "./modules/Aboard/views/templates"
-
-        app.enable 'strict routing'
-
-        app.get '/awesome', (req, res) -> res.redirect '/awesome/'
-        app.use '/awesome/', App.static "./modules/Awesome/views/assets"
-        app.use '/awesome/', App.static "./modules/Awesome/views/templates"
-
 ##### Обработчик подключения к базе данных
 
     injector.invoke (app, db, log) ->
+
+Каждому запросу к приложению, кроме запросов к статике, полагается
+подключение к редису:
+
+        app.use (req, res, next) ->
+            redis= db.redis
+            log 'redis connection', !!redis
+            req.redis= redis
+            do next
 
 Каждому запросу к приложению, кроме запросов к статике, полагается
 подключение к базе данных. Свободное соединение выбирается из пула соединений:
@@ -109,35 +107,34 @@
  
 ##### Обработчик маршрутов Aboard API
 
-    injector.invoke (app, config, log) ->
-
-Создает и монтирует субприложение:
-
-        app.use '/api/v1', injector.invoke (AboardApiV1, AwesomeApiV1, auth, session) ->
-            app= new AboardApiV1
+    injector.invoke (app, App, config, auth, session, log) ->
 
 Регистрирует парсер печенек:
 
-            app.use do AboardApiV1.cookieParser
+        app.use do App.cookieParser
 
 Регистрирует парсер тела запроса:
 
-            app.use do AboardApiV1.bodyParser
+        app.use do App.bodyParser
 
 Регистрирует обработчик сессий:
 
-            app.use session.init
-                secret: config.session.secret
+        app.use session.init
+            secret: config.session.secret
 
 Регистрирует обработчики аутентификации:
 
-            app.use do auth.init
-            app.use do auth.sess
+        app.use do auth.init
+        app.use do auth.sess
+
+Создает и монтирует субприложение:
+
+        app.use '/api/v1', injector.invoke (AboardApiV1, AwesomeApiV1) ->
+            app= new AboardApiV1
 
 Регистрирует обработчики авторизации:
 
-            app.use do AwesomeApiV1.loadUser
-            app.use do AwesomeApiV1.loadUserPermission
+            app.use do AwesomeApiV1.loadProfile
 
 Объявляет обработчики субприложения:
 
@@ -386,6 +383,9 @@
                             log 'thread rejected', err
                             next err
  
+Регистрирует обработчик ошибок:
+
+            app.use AboardApiV1.errorHandler()
 
 Возвращает субприложение для монтирования к родителю:
 
@@ -408,14 +408,42 @@
 Отдает аутентифицированного пользователя.
 
             app.get '/api/v1/user'
-            ,   access('user')
-            ,   AwesomeApiV1.loadUser()
             ,   (req, res, next) ->
-                    req.user (user) ->
-                            log 'user resolved', user
-                            res.json user
+                    req.profile (profile) ->
+                            log 'profile resolved', profile
+                            res.json profile
                     ,   (err) ->
-                            log 'user rejected', err
+                            log 'profile rejected', err
+                            next err
+
+ 
+## [PATCH /api/v1/user]()
+Обновляет данные аутентифицированного пользователя.
+
+            app.patch '/api/v1/user'
+            ,   access('user')
+            ,   AwesomeApiV1.updateProfile()
+            ,   (req, res, next) ->
+                    req.profile (profile) ->
+                            log 'updated profile resolved', profile
+                            res.json profile
+                    ,   (err) ->
+                            log 'updated user rejected', err
+                            next err
+
+ 
+## [PATCH /api/v1/user/account]()
+Обновляет данные учетной записи аутентифицированного пользователя.
+
+            app.patch '/api/v1/user/account'
+            ,   access('user')
+            ,   AwesomeApiV1.updateAccount()
+            ,   (req, res, next) ->
+                    req.account (account) ->
+                            log 'updated user account resolved', account
+                            res.json account
+                    ,   (err) ->
+                            log 'updated user account rejected', err
                             next err
 
  
@@ -450,33 +478,64 @@ Aутентифицирует пользователя Гитхаба.
                     res.redirect '/'
 
  
-## [POST /api/v1/users]()
-Отдает список пользователей.
+## [GET /api/v1/groups]()
+Отдает список групп.
 
-            app.get '/api/v1/users'
-            ,   access('admin.users')
-            ,   AwesomeApiV1.queryUser()
+            app.get '/api/v1/groups'
+            ,   access('groups.view')
+            ,   AwesomeApiV1.queryGroup()
             ,   (req, res, next) ->
-                    req.users (users) ->
-                            log 'users resolved', users
-                            res.json users
+                    req.groups (groups) ->
+                            log 'groups resolved', groups
+                            res.json groups
                     ,   (err) ->
-                            log 'users rejected', err
+                            log 'groups rejected', err
                             next err
 
  
-## [POST /api/v1/users/:userId]()
-Отдает пользователя по идентификатору.
+## [GET /api/v1/users]()
+Отдает список пользователей.
+
+            app.get '/api/v1/users'
+            ,   access('users.view')
+            ,   AwesomeApiV1.queryProfile()
+            ,   (req, res, next) ->
+                    req.profiles (profiles) ->
+                            log 'profiles resolved', profiles
+                            res.json profiles
+                    ,   (err) ->
+                            log 'profiles rejected', err
+                            next err
+
+ 
+## [GET /api/v1/users/:userId]()
+Отдает указанного пользователя.
 
             app.get '/api/v1/users/:userId'
-            ,   access('admin.users')
-            ,   AwesomeApiV1.loadUser('userId')
+            ,   access('users.view')
             ,   (req, res, next) ->
                     req.user (user) ->
                             log 'user resolved', user
                             if not user
                                 res.status 404
                             res.json user
+                    ,   (err) ->
+                            log 'user rejected', err
+                            next err
+
+ 
+## [GET /api/v1/users/:userId/sessions]()
+Отдает сессии указанного пользователя.
+
+            app.get '/api/v1/users/:userId/sessions'
+            ,   access('users.view.sessions')
+            ,   AwesomeApiV1.loadProfileSessions('userId')
+            ,   (req, res, next) ->
+                    req.profile.sessions (sessions) ->
+                            log 'profile sessions resolved', sessions
+                            if not sessions
+                                res.status 404
+                            res.json sessions
                     ,   (err) ->
                             log 'user rejected', err
                             next err
@@ -487,13 +546,38 @@ Aутентифицирует пользователя Гитхаба.
             app
 
  
-##### Главная страница
+##### Ресурсы приложения
 
-    injector.invoke (app) ->
-        fs= require 'fs'
-        app.use (req, res) ->
-            fs.readFile './modules/Aboard/views/templates/index.html', 'utf8', (err, content) ->
-                res.send content
+    injector.invoke (app, App, log) ->
+
+Ресурсы модулей:
+
+        app.enable 'strict routing'
+
+        app.use '/', App.static "./modules/Aboard/views/assets"
+        app.use '/', App.static "./modules/Aboard/views/templates"
+
+        app.get '/auth', (req, res) -> res.redirect '/auth/'
+        app.get '/auth/', (req, res, next) ->
+            if req.isUnauthenticated()
+                return do next
+            res.redirect '/'
+        app.use '/auth/', App.static "./modules/Aboard/views/templates/Welcome"
+
+        app.get '/user', (req, res) -> res.redirect '/user/'
+        app.get '/user/', (req, res, next) ->
+            if req.isAuthenticated()
+                return do next
+            res.redirect '/auth/'
+        app.use '/user/', App.static "./modules/Aboard/views/templates/Personal"
+
+        app.get '/awesome', (req, res) -> res.redirect '/awesome/'
+        app.use '/awesome/', (req, res, next) ->
+            if req.isAuthenticated()
+                return do next
+            res.redirect '/auth/'
+        app.use '/awesome/', App.static "./modules/Awesome/views/assets"
+        app.use '/awesome/', App.static "./modules/Awesome/views/templates"
 
  
 ##### Обработчик ошибок
@@ -503,10 +587,6 @@ Aутентифицирует пользователя Гитхаба.
     injector.invoke (app, log, Error) ->
         deferred.monitor '7000', (err) ->
             log 'promise error', err
-        #app.use (err, req, res, next) ->
-        #    log 'error', err
-        #    res.status err.status or 500
-        #    res.end 'Error.'
 
 В режиме разработчика объявляет маршрут для симуляции ошибок:
 

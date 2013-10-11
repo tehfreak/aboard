@@ -1,0 +1,27 @@
+extends layout
+
+block body
+    h1 Контрольно-пропускной пункт
+
+    .container: .row: .col-xs-12
+        form.b-panel(name="AuthForm", ng-controller="AuthFormCtrl", ng-submit="auth(account)"): .row
+
+
+
+            .col-xs-12.col-sm-7.col-sm-offset-1: fieldset
+                legend Вход с паролем
+
+                input(type='text', placeholder='Имя', ng-model="account.name")
+                input(type='password', placeholder='Пароль', ng-model="account.pass")
+
+                .row: .col-xs-12.col-sm-4.col-sm-offset-8
+                    button.btn-block(type='submit', ng-disabled="AuthForm.$invalid") Войти
+
+
+
+            .col-xs-12.col-sm-3: fieldset
+                legend Вход с сервиса
+
+                a(href='/auth/google') Google
+                span 
+                a(href='/auth/github') Github
